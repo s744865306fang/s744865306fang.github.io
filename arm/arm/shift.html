@@ -1,0 +1,122 @@
+<!doctype html public "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+<title>移位</title>
+</head>
+
+<body TopMargin=0 bgcolor="#f0f0f0" text="#000000" link="#0022dd" vlink="#002288">
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+    
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="100"></td>
+    <td>
+      <h1 align="center"><font color="#202020">移位</font></h1>
+    </td>
+    <td align="center" width="100"></td>
+</table>
+<ul>
+  <li><a href="#lsl">LSL</a></li>
+  <li><a href="#asl">ASL</a></li>
+  <li><a href="#lsr">LSR</a></li>
+  <li><a href="#asr">ASR</a></li>
+  <li><a href="#ror">ROR</a></li>
+  <li><a href="#rrx">RRX</a></li>
+</ul>
+<p>ARM 处理器组建了可以与数据处理指令(ADC、ADD、AND、BIC、CMN、CMP、EOR、MOV、MVN、ORR、RSB、SBC、SUB、TEQ、TST)一起使用的桶式移位器(barrel 
+shifter)。你还可以使用桶式移位器影响在 LDR/STR 
+操作中的变址值。
+<p>译注：移位操作在 ARM 
+指令集中不作为单独的指令使用，它是指令格式中是一个字段，在汇编语言中表示为指令中的选项。如果数据处理指令的第二个操作数或者单一数据传送指令中的变址是寄存器，则可以对它进行各种移位操作。如果数据处理指令的第二个操作数是立即值，在指令中用 
+8 位立即值和 4 位循环移位来表示它，所以对大于 255 
+的立即值，汇编器尝试通过在指令中设置循环移位数量来表示它，如果不能表示则生成一个错误。在逻辑类指令中，逻辑运算指令由指令中 
+S 位的设置或清除来确定是否影响进位标志，而比较指令的 S 
+位总是设置的。在单一数据传送指令中指定移位的数量只能用立即值而不能用寄存器。</p>
+<p>下面是给不同的移位类型的六个助记符:
+<pre>  LSL  逻辑左移
+  ASL  算术左移
+  LSR  逻辑右移
+  ASR  算术右移
+  ROR  循环右移
+  RRX  带扩展的循环右移
+</pre>
+<code>ASL</code> 和 <code>LSL</code> 是等同的，可以自由互换。
+<p>你可以用一个立即值(从 0 到 31)指定移位数量，或用包含在 
+0 和 31 之间的一个值的寄存器指定移位数量。
+<p>&nbsp;
+<p><a name="lsl"></a><a name="asl"></a>
+<h2>逻辑或算术左移</h2>
+<p>(<font color="#0000FF">L</font>ogical or <font color="#0000FF">A</font>rithmetic 
+<font color="#0000FF">S</font>hift <font color="#0000FF">L</font>eft)</p>
+<pre>  Rx, LSL #n    or
+  Rx, ASL #n    or
+  Rx, LSL Rn    or
+  Rx, ASL Rn</pre>
+接受 Rx 的内容并按用‘n’或在寄存器 Rn 
+中指定的数量向高有效位方向移位。最低有效位用零来填充。除了概念上的第 
+33 位(就是被移出的最小的那位)之外丢弃移出最左端的高位，如果逻辑类指令中 
+S 
+位被设置了，则此位将成为从桶式移位器退出时进位标志的值。
+<p>考虑下列:
+<pre>  MOV    R1, #12
+  MOV    R0, R1, LSL#2</pre>
+在退出时，R0 是 48。 这些指令形成的总和是 <code>R0 = #12, LSL#2</code> 
+等同于 BASIC 的 <code>R0 = 12 &lt;&lt; 2</code>
+<p>&nbsp;
+<p><a name="lsr"></a>
+<h2>逻辑右移</h2>
+<p>(<font color="#0000FF">L</font>ogical <font color="#0000FF">S</font>hift <font color="#0000FF">R</font>ight)</p>
+<pre>  Rx, LSR #n    or
+  Rx, LSR Rn</pre>
+它在概念上与左移相对。把所有位向更低有效位方向移动。如果逻辑类指令中 
+S 
+位被设置了，则把最后被移出最右端的那位放置到进位标志中。它同于 
+BASIC 的 <code>register = value &gt;&gt;&gt; shift</code>。
+<p>&nbsp;
+<p><a name="asr"></a>
+<h2>算术右移</h2>
+<p>(<font color="#0000FF">A</font>rithmetic <font color="#0000FF">S</font>hift <font color="#0000FF">R</font>ight)</p>
+<pre>  Rx, ASR #n    or
+  Rx, ASR Rn</pre>
+类似于 LSR，但使用要被移位的寄存器(Rx)的第 31 
+位的值来填充高位，用来保护补码表示中的符号。如果逻辑类指令中 
+S 
+位被设置了，则把最后被移出最右端的那位放置到进位标志中。它同于 
+BASIC 的 <code>register = value &gt;&gt; shift</code>。
+<p>&nbsp;
+<p><a name="ror"></a>
+<h2>循环右移</h2>
+<p>(<font color="#0000FF">Ro</font>tate <font color="#0000FF">R</font>ight)</p>
+<pre>  Rx, ROR #n    or
+  Rx, ROR Rn</pre>
+循环右移类似于逻辑右移，但是把从右侧移出去的位放置到左侧，如果逻辑类指令中 
+S 位被设置了，则同时放置到进位标志中，这就是位的‘循环’。一个移位量为 
+32 
+的操作将导致输出与输入完全一致，因为所有位都被移位了 
+32 个位置，又回到了开始时的位置!
+<p>&nbsp;
+<p><a name="rrx"></a>
+<h2>带扩展的循环右移</h2>
+<p>(<font color="#0000FF">R</font>otate <font color="#0000FF">R</font>ight with 
+e<font color="#0000FF">x</font>tend)</p>
+<pre>  Rx, RRX</pre>
+这是一个 ROR#0 操作，它向右移动一个位置 - 
+不同之处是，它使用处理器的进位标志来提供一个要被移位的 
+33 位的数量。<br>
+<font size="-1">Thanks to <i>Ian Jeffray</i> for the correction.</font>
+<p>　
+<hr size="3">
+<a href="index.html">回到目录页</a>
+
+</body>
+
+</html>

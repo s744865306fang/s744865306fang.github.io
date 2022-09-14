@@ -1,0 +1,884 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>ARM Instruction Formats and Timings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+</head>
+
+<body>
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+
+<h1 align="center"><font color="#202020">ARM 指令格式和时序</font></h1>
+
+<hr>
+<p>在整个文档中，‘字’指的是 32 位(4 字节)的内存。
+<hr>
+<a name="Contents">
+<h2>目录</a>　</h2>
+<ul>
+  <li><a href="#Modes">处理器模式</a>
+  <li><a href="#Registers">寄存器</a>
+  <li><a href="#Pipeline">流水线</a>
+  <li><a href="#Timings">时序</a>
+  <li><a href="#Instructions">指令</a>
+    <ul>
+      <li><a href="#Condition">条件代码</a>
+      <li><a href="#Data">数据处理指令</a>
+      <li><a href="#Branch">分支指令</a>
+      <li><a href="#Multiplication">乘法</a>
+      <li><a href="#Long">长乘法(ARM7DM)</a>
+      <li><a href="#Transfer">单一数据传送</a>
+      <li><a href="#Block">块数据传送</a>
+      <li><a href="#Software">软件中断</a>
+      <li><a href="#CoproOp">协处理器数据操作</a>
+      <li><a href="#CoproTrans">协处理器数据传送和寄存器传送</a>
+      <li><a href="#Swap">单一数据交换(ARM 3 和以后，包括 ARM 2aS)</a>
+      <li><a href="#Status">状态寄存器传送(ARM 6 和以后)</a>
+      <li><a href="#Undefined">未定义指令</a></li>
+    </ul>
+  <li><a href="#Credits">贡献</a></li>
+</ul>
+<hr>
+<a name="Modes">
+<h2>处理器模式</h2>
+</a>
+<p>ARM 有一个用户模式和多个有特权的超级用户模式。它们是:
+<dl>
+  <dt>IRQ
+  <dd>在触发中断请求(IRQ)时进入。
+  <dt>FIQ
+  <dd>在触发快速中断请求(FIQ)时进入。
+  <dt>SVC
+  <dd>在指令一个软件中断(SWI)时进入。
+  <dt>Undef
+  <dd>在执行了一个未定义的指令时进入(不存在于 ARM 2 和 3，在这里进入 
+    SVC 模式)。
+  <dt>Abt
+  <dd>在一个内存访问尝试被内存管理器(例如，MEMC 或 MMU)所终止时进入，通常因为所做的尝试要访问不存在的内存或者在没有充足特权的模式下访问内存(不存在于 
+    ARM 2 和 3，在这里进入 SVC 模式)。</dd>
+</dl>
+<p>在每种情况下还调用适当的硬件向量。
+<p>　
+<hr>
+<a name="Registers">
+<h2>寄存器</h2>
+</a>
+<p>ARM 2 和 3 有 27 个 32 
+位处理器寄存器，在任何给定时间只有其中的 16 个是可见的(是哪十六个取决于处理器模式)。它们被引用为 
+R0-R15。
+<p>ARM 6 和以后有 31 个 32 
+位处理器寄存器，在任何给定时间只有其中的 16 
+个是可见的。
+<p>R15 特别重要。在 ARM 2 和 3，其中的 24 
+位用做程序计数器，而余下的 8 
+位用于保持处理器模式、状态标志和中断模式。所以 R15 
+经常被称做 PC。
+<pre>        R15 = PC = NZCVIFpp pppppppp pppppppp ppppppMM
+</pre>
+位 0-1 和 26-31 被称为 PSR (处理器状态寄存器)。位 2-25 
+给出被取回到指令流水线中的当前指令的(以字为单位)地址 (见后)。所以永远只能从字对齐的地址执行指令。 <! center BOXED ;                                               
+l VLINE l. >
+<pre>M	当前处理器模式
+
+0	用户模式
+1	快速中断处理模式(FIQ 模式)
+2	中断处理模式(IRQ 模式)
+3	超级用户模式(SVC 模式)
+</pre>
+<! center BOXED ;
+l l. >
+<pre>名字	意思
+
+N	负数(Negative)标志
+Z	零(Zero)标志
+C	进位(Carry)标志
+V	溢出(oVerflow)标志
+I	中断(Interrupt)请求禁用
+F	快速(Fast)中断请求禁用
+</pre>
+<p>R14、R14_FIQ、R14_IRQ、和 R14_SVC 
+由于它们在带连接的分支指令期间的行为而有时被称为‘连接’寄存器。
+<p>ARM 6 和以后的处理器核心支持 32 
+位地址空间。这些处理可以在 26 为和 32 位 PC 
+模式二者下操作。 在 26 位 PC 模式下，R15 
+表现如同在以前的处理器上，所以代码只能运行在地址空间的最低的 
+64M 字节中。在 32 位 PC 模式下，R15 所有 32 
+位用做程序计数器。使用独立的状态寄存器来存储处理器模式和状态标志。PSR 
+定义如下:
+<pre>        NZCVxxxx xxxxxxxx xxxxxxxx IFxMMMMM
+</pre>
+注意在 32-bit 模式下 R15 的底端两位总是零 - 
+就是说你仍然只能得到字对齐的指令。忽略对这两位写非零的任何尝试。
+<p>当前定义了下列模式: <! center BOXED ;                                               
+l VLINE c VLINE l. >
+<pre>M	名字	意思
+
+00000	usr_26	26 位 PC Usr 模式
+00001	fiq_26	26 位 PC FIQ 模式
+00010	irq_26	26 位 PC IRQ 模式
+00011	svc_26	26 位 PC SVC 模式
+
+10000	usr_32	32 位 PC Usr 模式
+10001	fiq_32	32 位 PC FIQ 模式
+10010	irq_32	32 位 PC IRQ 模式
+10011	svc_32	32 位 PC SVC 模式
+10111	abt_32	32 位 PC Abt 模式
+11011	und_32	32 位 PC Und 模式
+</pre>
+<p>推测自上面的表，可能期望还定义了下列两个模式: <! center BOXED ;                                               
+l VLINE c VLINE l. >
+<pre>M	名字	意思
+
+00111	abt_26	26 bit PC Abt Mode
+01011	und_26	26 bit PC Und Mode
+</pre>
+实际上未定义它们(如果你确实向模式位写了 00111 或 01011，结果的芯片状态不会是你所希望的 
+- 就是说不会是有适当的 R13 和 R14 被交换进来的一个 26-bit 
+特权模式。
+<p>下表展示在每个处理器模式下可获得那些的寄存器:
+<pre>
+        +------+---------------------------------------+
+        | 模式 |  可获得的寄存器                        |
+        +------+---------------------------------------+
+        | USR  | R0             -             R14  R15 |
+        +------+---------+-----------------------------+
+        | FIQ  | R0 - R7 | R8_FIQ    -    R14_FIQ  R15 |
+        +------+---------+----+------------------------+
+        | IRQ  | R0   -   R12 | R13_IRQ - R14_IRQ  R15 |
+        +------+--------------+------------------------+
+        | SVC  | R0   -   R12 | R13_SVC - R14_SVC  R15 |
+        +------+--------------+------------------------+
+        | ABT  | R0   -   R12 | R13_ABT - R14_ABT  R15 | (ARM 6 和以后)
+        +------+--------------+------------------------+
+        | UND  | R0   -   R12 | R13_UND - R14_UND  R15 | (ARM 6 和以后)
+        +------+---------------------------------------+
+</pre>
+<p>在 ARM6 
+和以后的处理器上有六个状态寄存器。一个是当前处理器状态寄存器(CPSR)，持有关于当前处理器状态的信息。其它五个是保存的程序状态寄存器(SPSR): 
+每个特权模式都有一个，持有完成在这个模式下的例外处理时处理器必须返回的关于状态的信息。
+<p>分别使用 MSR 和 MRS 指令来设置和读取这些寄存器。
+<p>　
+<hr>
+<a name="Pipeline">
+<h2>流水线</h2>
+</a>
+<p>不同于微编码的处理器，ARM (保持它的 RISC 性)是完全硬布线的。
+<p>为了加速 ARM 2 和 3 的执行使用 3 
+阶段流水线。第一阶段持有从内存中取回的指令。第二阶段开始解码，而第三阶段实际执行它。故此，程序计数器总是超出当前执行的指令两个指令。(在为分支指令计算偏移量时必须计算在内)。
+<p>因为有这个流水线，在分支时丢失 2 个指令周期(因为要重新添满流水线)。所以最好利用条件执行指令来避免浪费周期。例如:
+<pre>
+	...
+	CMP R0,#0
+	BEQ over
+	MOV R1,#1
+	MOV R2,#2
+over
+	...
+
+</pre>
+可以写为更有效的:
+<pre>
+	...
+	CMP R0,#0
+	MOVNE R1,#1
+	MOVNE R2,#2
+	...
+</pre>
+<p>　
+<hr>
+<a name="Timings">
+<h2>时序</h2>
+</a>
+<p>ARM 指令在时序上是 S、N、I 和 C 周期的混合。
+<p>S 周期是 ARM 在其中访问一个顺序的内存位置的周期。
+<p>N 周期是 ARM 在其中访问一个非顺序的内存位置的周期。
+<p>I 周期是 ARM 
+在其中不尝试访问一个内存位置或传送一个字到/从一个协处理器的周期。
+<p>C 周期是 ARM 在其中与一个协处理器之间在数据总线(对于无缓存的 
+ARM)或协处理器总线(对于有缓存的 ARM)上写传送一个字的周期。
+<p>各种类型的周期都必须至少与 ARM 
+的时钟周期一样长。内存系统可以伸展它们: 对于典型的 DRAM 
+系统，结果是:
+<ul>
+  <li>N 周期变成最小长度的两倍(主要因为 DRAM 
+    在内存访问是非顺序时要求更长的访问协议)。
+  <li>S 周期通常是最小长度，但偶尔也会被伸展成 N 
+    周期的长度(在你从一个内存“行”的最后一个字移动到下一行的第一个字的时候<a href="#Footnote1">[1]</a>)。
+  <li>I 周期和 C 周期总是最小长度。</li>
+</ul>
+<p>对于典型的 SRAM 
+系统，所有类型的周期典型的都是最小长度。
+<p>在 Acorn Archimedes A440/1 使用的 8MHz ARM2 中，一个 S (顺序) 
+周期是 125ns 而一个 N (非顺序) 周期是 250ns。应当注意到这些时序不是 
+ARM 的属性，而是内存系统的属性。例如，一个 8MHz ARM2 
+可以与一个给出 125ns 的 N 周期的 RAM 
+系统相连接。处理器的速率是 8MHz 
+只是简单的意味着如果你使任何类型的周期在长度上小于 
+125ns 则它不保证能够工作。
+<p>有缓存的处理器: 所有给出的信息依据 ARM 
+所见到的时钟周期。它们不按固定的速率发生: 
+缓存控制逻辑在 cache 不中的时候改变提供给 ARM 
+的时钟周期来源。
+<p>典型的，有缓存的 ARM 有两个时钟输入: “快速时钟” FCLK 
+和“内存时钟”MCLK。 在 cache 命中的时候，ARM 的时钟使用 
+FCLK 的速度并且所有类型的周期都是最小的长度: 从这点上看 
+cache 在效果上是某种 SRAM。在 cache 不中发生的时候，ARM 
+的时钟同步为 MCLK，接着以 MCLK 速度进行 cache 行添充(依赖于在处理器中涉及的 
+cache 行的长度使用 N+3S 或 N+7S 个周期)，接着 ARM 
+的时钟被同步回到 FCLK。
+<p>在发生内存访问的时候，ARM 将守时操作(be clocked): 
+但是，可以使用一个叫 NWAIT 的输入来导致涉及到的 ARM 
+周期不做任何事情，直到正确的字从内存中到来，并在仍有余下的字到来的时候通常不做任何事情(为了避免在 
+cache 仍忙于重新填充 cache 行的时候得到进一步的内存请求)。有缓存的 
+ARM 可以被配置成使用 FCLK 和 MCLK 来相互同步(所以 FCLK 
+是准确的 MCLK 倍数，并且每个 MCLK 时钟周期与一个 FCLK 
+周期同时开始)或异步的(这种情况下 FCLK 和 MCLK 
+周期相互之间可以有任何关系)使情况更加复杂。
+<p>情况非常复杂。这些行为的近似的描述是，在一个 cache 
+行不中发生的时候，它所涉及的周期耗用以 MCLK 
+周期为单位的 cache 行重填充时间(例如，N+3S 或 N+7S)，对于 N 
+周期和 S 周期可能按 DRAM 
+所描述的那样被伸展，加上一些更多的周期用于重新同步阶段。要得到详情，你需要得到所涉及的处理器的 
+datasheet。
+<p><a name="Footnote1">脚注</a><a name="Footnote1"> 1:</a> 
+内存控制器意图使用这个简单的策略: 如果请求一个 N 
+周期，则把访问作为不在同一行来对待；如果请求一个 S 
+周期，除非它效果上是这行的最后一个字(可以被快速检测出来)，否则把访问作为同行来对待。结果是一些 
+S 周期将持续与 N 周期相同的时间；如果我记得正确，在 
+Archimedes 上 S 周期所访问的内存被按 16 字节来分开。对于 
+Archimedes 代码的实际后果是: (a) 大约 4 个 S 周期中的 1 
+个变成一个 N 周期，为此，所有地址都是字地址并按 4 
+来分开；(b) 
+有时值得仔细关照对齐代码来避免这种效果并得到一些额外的性能。)
+<p>　
+<hr>
+<a name="Instructions">
+<h2>指令</h2>
+</a>
+<p>每个 ARM 指令都是 32 
+位宽，下面给出详细的解释。对于每个指令类，我们给出指令位图(bitmap)，和典型汇编器使用的语法的例子。
+<p>一定要注意助记符的语法不是固定的；它是汇编器的特性，而不是 
+ARM 机器编码的。
+<p><a name="Condition">
+<h3>条件代码</h3>
+</a>
+<p>每个指令的顶端部分是一个条件代码，所以可以有条件的运行每个单一的 
+ARM 指令。
+<p>　
+<pre>                                    条件
+指令位图                             编号  条件代码             	      所须标志:
+
+0000xxxx xxxxxxxx xxxxxxxx xxxxxxxx 0    EQ(等于，Equal)              Z
+0001xxxx xxxxxxxx xxxxxxxx xxxxxxxx 1    NE(不等于，Not Equal)	      ~Z
+0010xxxx xxxxxxxx xxxxxxxx xxxxxxxx 2    CS(进位设置，Carry Set)	      C
+0011xxxx xxxxxxxx xxxxxxxx xxxxxxxx 3    CC(进位清除，Carry Clear)     ~C
+
+0100xxxx xxxxxxxx xxxxxxxx xxxxxxxx 4    MI(负号，MInus)        	      N
+0101xxxx xxxxxxxx xxxxxxxx xxxxxxxx 5    PL(正号，PLus)         	      ~N
+0110xxxx xxxxxxxx xxxxxxxx xxxxxxxx 6    VS(溢出设置，oVerflow Set)    V
+0111xxxx xxxxxxxx xxxxxxxx xxxxxxxx 7    VC(溢出清除，oVerflow Clear)  ~V
+
+1000xxxx xxxxxxxx xxxxxxxx xxxxxxxx 8    HI(高于，HIgher)       	      C and ~Z
+1001xxxx xxxxxxxx xxxxxxxx xxxxxxxx 9    LS(低于或同于，Lower or Same) ~C and  Z
+1010xxxx xxxxxxxx xxxxxxxx xxxxxxxx A    GE(大于等于，Greater or equal)N =  V
+1011xxxx xxxxxxxx xxxxxxxx xxxxxxxx B    LT(小于，Less Than)    	      N = ~V
+
+1100xxxx xxxxxxxx xxxxxxxx xxxxxxxx C    GT(大于，Greater Than) 	      (N =  V) and ~Z
+1101xxxx xxxxxxxx xxxxxxxx xxxxxxxx D    LE(小于等于，Less or equal)   (N = ~V) or   Z
+1110xxxx xxxxxxxx xxxxxxxx xxxxxxxx E    AL(总是，Always)	      永真
+1111xxxx xxxxxxxx xxxxxxxx xxxxxxxx F    NV(从不，Never)               永假
+</pre>
+<p>在多数汇编器中，插入条件代码到紧随在助记符根代码(stub)的后面；省略条件代码缺省为使用 
+AL。
+<p>在一些汇编器中把 HS (高于或同于) 和 LO (低于) 分别用做 CS 
+和 CC 的同义词。
+<p>条件 GT、GE、LT、LE 被成为有符号比较，而 HS、HI、LS、LO 
+被称为无符号比较。
+<p>把一个条件代码与 1 进行异或得到相反的条件的代码。
+<p>NB: ARM 废弃使用 NV 条件代码 - 假定你使用 MOV R0,R0 
+作为一个空指令而不是以前推荐的 MOVNV R0,R0 
+。将来的处理器可能重新使用 NV 条件来做其他事情。
+<p>所须条件为假的指令执行 1S 
+周期，使一个指令有条件执行不招致时间处罚。
+<p><a name="Data">
+<h3>数据处理指令</h3>
+</a>
+<pre>xxxx000a aaaSnnnn ddddcccc ctttmmmm  寄存器形式
+xxxx001a aaaSnnnn ddddrrrr bbbbbbbb  立即数形式
+</pre>
+<p>典型的汇编语法:
+<pre>
+        MOV    Rd, #0
+        ADDEQS Rd, Rn, Rm, ASL Rc
+        ANDEQ  Rd, Rn, Rm
+        TEQP   Pn, #&amp;80000000
+        CMP    Rn, Rm
+</pre>
+<p>在操作 a 下，组合 Rn 的内容和 Op2，放置结果到 Rd 中。
+<p>如果使用寄存器形式，则 Op2 被设置为依据下面描述的 t 
+来移位的 Rm 的内容。如果使用立即数形式，则 Op2 = #b, ROR #2r。 <! center BOXED ;                                               
+c l s l
+c l l l. >
+<pre> t	汇编器       	        解释
+
+000	LSL #c                  逻辑左移
+001	LSL Rc                  逻辑左移
+010	LSR #c	for c != 0      逻辑右移
+	LSR #32	for c  = 0
+011	LSR Rc                  逻辑右移
+100	ASR #c	for c != 0      算术右移
+	ASR #32	for c  = 0
+101	ASR Rc                  算术右移
+110	ROR #c	for c != 0      循环右移
+	RRX	for c  = 0      带扩展的循环右移一位
+111	ROR Rc                  循环右移
+</pre>
+<p>在寄存器形式中，用位 8-11 表示 Rc；如果使用 Rc 则位 7 
+必须清除。(如果你编码为 1，你将得到一个乘法、SWP 
+或未分配的指令而不是一个数据处理指令。)
+<p>还有，只使用了 Rc 的底端字节 - 如果 Rc = 256, 
+则移位将是零。
+<p>“MOV[S] Ra,Rb,RLX” 可以通过 ADC[S] Ra,Rb,Rb 来完成，这里的 RLX 
+意思是带扩展的循环左移一位。
+<p>多数汇编器允许使用 ASL 作为 LSL 
+的同义词。因为对算术左移是什么有不同的意见，最好使用术语 
+LSL。
+<p>通过在 MOV、MVN 或逻辑指令中设置 S 位，(在寄存器或立即数形式中)把进位标志设置为最后移出的那一位。
+<p>如果不做移位，则不影响进位标志。
+<p>如果立即数有可选择的多个形式(例如，#1 可以表示为 1 ROR 
+#0、4 ROR #2、16 ROR #4 或 64 ROR #6)，则汇编器希望使用涉及零移位的那个形式，如果可获得的话。所以，如果 
+0 &lt;= const &lt;= 255，则 MOVS Rn,#const 
+将保持进位标志不受影响，否则将改变它。
+<p><! center BOXED ;
+c l l l. >
+<pre>aaaa   汇编器      意思            P-Code
+
+0000	AND     	逻辑与          Rd = Rn AND Op2
+0001	EOR     	逻辑异或        Rd = Rn EOR Op2
+0010	SUB     	减法            Rd = Rn  -  Op2
+0011	RSB     	反向减法        Rd = Op2 -  Rn
+0100	ADD     	加法            Rd = Rn  +  Op2
+0101	ADC     	带进位的加法     Rd = Rn  +  Op2 + C
+0110	SBC     	带借位的减法     Rd = Rn  -  Op2 - (1-C)
+0111	RSC     	带借位的反向减法 Rd = Op2 -  Rn  - (1-C)
+1000	TST     	测试位          Rn AND Op2
+1001	TEQ     	测试等同        Rn EOR Op2
+1010	CMP     	比较            Rn  -  Op2
+1011	CMN     	比较取负        Rn  + Op2
+1100	ORR     	逻辑或          Rd = Rn OR  Op2
+1101	MOV     	传送值          Rd = Op2
+1110	BIC     	位清除          Rd = Rn AND NOT Op2
+1111	MVN     	传送取非        Rd = NOT Op2
+</pre>
+注意 MVN 和 CMN 不是象表面上的那种关系；MVN 使用直接的逐位(bitwise)非操作，把 
+Rn 设置为 Op2 对 1 的补码(反码)。CMN 把 Rn 与 Op2 对 2 
+的补码进行比较。
+<p>这些指令可归入 4 个子集:
+<dl>
+  <dt>MOV, MVN
+  <dd>Rn 被忽略，并且应当是 0000。如果设置了 S 
+    位，则在结果上设置 N 和 Z 
+    标志。并且如果使用了移位器，则 C 
+    标志被设置为被移出的最后一位。不影响 V 标志。
+  <dt>　
+  <dt>CMN, CMP, TEQ, TST</dt>
+  <dd>Rd 不被指令所设置，并且应当是 0000。必须设置 S 位(多数汇编器会自动完成；如果没有设置它，则这个指令将是 
+    MRS、MSR、或一个未分配的指令。)
+    <p>算术操作(CMN, CMP)在结果上设置 N 和 Z 标志，从 ALU 得到 
+    C 和 V 标志。
+    <p>逻辑操作(TEQ, TST)在结果上设置 N 和 Z 
+    标志，如果使用了移位器则从它得到 C 标志(在这种情况下它变成被移出的最后一位)，不影响 
+    V 标志。
+    <p>有一个特殊情况(对于 ARMs &gt;= 6，只针对 26 位模式)，dddd 
+    字段是 1111 导致用结果的相应的位设置标志(在用户模式下)，或整个 
+    26 位 PSR (在特权模式下)。这由给指令的 P 后缀来指示 - 
+    CMNP、 CMPP、TEQP、TSTP。常用 TEQP PC,#(新模式编号) 
+    来改变模式。在 32 位模式，应当使用 MSR 来替代(因为 TEQP 
+    等不再工作)。</p>
+  <dt>ADC, ADD, RSB, RSC, SBC, SUB
+  <dd>如果设置了 S 位，则在结果上设置 N 和 Z 标志，从 ALU 
+    的得到 C 和 V 标志。
+  <dt>　</dt>
+  <dt>AND, BIC, EOR, ORR
+  <dd>如果设置了 S 位，则在结果上设置 N 和 Z 
+    标志，如果使用了移位器则从它得到 C 标志(在这种情况下它变成被移出的最后一位)，不影响 
+    V 标志。</dd>
+</dl>
+<p>可以使用 ADD 和 SUB 
+以与位置无关的方式使寄存器指向数据，例如 ADD R0,PC,#24。这很有用，一些汇编器有一个叫做 
+ADR 的特殊宏指令(directive)，它自动生成恰当的 ADD 或 SUB 
+指令。(ADR R0, fred 典型的把 fred 的地址放置到 R0 中，假定 fred 
+在范围内)。
+<p>在 26-bit 模式下，在 R15 
+是使用的寄存器之一的时候发生一种特殊情况:
+<ul>
+  <li>如果 Rn = R15 则使用的 R15 值屏蔽掉了所有 PSR 位。
+  <li>如果 Op2 涉及 R15，则使用所有的 32 位。</li>
+</ul>
+<p>在 32-bit 模式下，使用 R15 的所有的位。
+<p>在 26-bit 模式下，如果 Rd = R15 则:
+<ul>
+  <li>如果未设置 S 位，则只设置 PC 的 24 位。
+  <li>如果设置了 S 位，则覆写 PC 和 PSR 二者(除非在非用户模式下，否则不改变模式位、I 
+    和 F 位。)</li>
+</ul>
+<p>对于 32-bit 模式， 如果 Rd=15，则覆写 PC 
+的所有的位，不包括最低的那两个有效位，它们总是零。如果未设置 
+S 位，则只进行上面这些；如果设置了 S 位，把当前模式的 
+SPSR 复制到 CPSR 中。在 32-bit 用户模式下，你不应该执行把 PC 
+作为目的寄存器并设置了 S 位的指令，因为用户模式没有 SPSR。(顺便说一句，你这样做不会打断处理器 
+- 
+这样做的结果只是未定义而已，且在不同的处理器上可能不同。)
+<p>执行这些指令使用下列数目的周期: 1S + (1S 
+如果使用了寄存器控制的移位) + (1S + 1N 如果改变了 PC)
+<p><a name="Branch">
+<h3>分支指令</h3>
+</a>
+<pre>xxxx101L oooooooo oooooooo oooooooo
+</pre>
+<p>典型的汇编语法:
+<pre>
+        BEQ  地址
+        BLNE 子例程
+</pre>
+<p>使用这些指令强制跳转到一个新地址，用相对于执行这个指令时 
+PC 值的以字为单位的偏移量给出这个新地址。
+<p>因为流水线的缘故，PC 总是超出存储这个指令的地址 2 
+个指令(8 字节)，所以分支的偏移量 = (位 0-23 的有符号扩展):
+<pre>	目的地址 = 当前地址 + 8 + (4 * 偏移量)
+</pre>
+在 26-bit 模式下，清除目的地址的顶端 6 位。
+<p>如果设置了 L 位，则在进行这个分支之前把 PC 
+的当前内容复制到 R14。所以 R14 
+持有在这个分支后面的指令的地址，被调用的例程可以用 MOV 
+PC,R14 返回。
+<p>在 26-bit 模式下，使用 MOVS PC,R14 
+来从一个带连接的分支返回，在返回时可以自动恢复 PSR 
+标志。 在 32-bit 模式下 MOVS PC,R14 
+的行为是不同的，并只适合于从例外返回。
+<p>执行分支和带连接的分支二者都使用 2S+1N 个周期。
+<p>　</p>
+<a name="Multiplication">
+<h3>乘法</h3>
+</a>
+<pre>xxxx0000 00ASdddd nnnnssss 1001mmmm
+</pre>
+<p>典型汇编语法:
+<pre>
+        MULEQS Rd, Rm, Rs
+        MLA    Rd, Rm, Rs, Rn
+</pre>
+<p>这些指令做两个操作数的乘法，并且可以选择加上第三个操作数，把结果放置到另一个寄存器中。
+<p>如果设置了 S 位，则在结果是设置 N 和 Z 标志，未定义 C 
+标志，不影响 V 标志。
+<p>如果设置了 A 位，则操作的效果是 Rd = Rm*Rs + Rn，否则是 Rd 
+= Rm*Rs。
+<p>目的寄存器不应该与操作数寄存器 Rm 相同。R15 
+不应该用于操作数或目的寄存器。
+<p>执行这些指令在最坏的情况下使用 1S + 16I 
+个周期，并依赖于实际参数的值可以更小。实际时间依赖于 
+Rs 的值，依照下表: <! center BOXED ;                                               
+c s l
+r1 l l. >
+<pre>         Rs 的范围         	周期数
+
+           &amp;0 -	&amp;1      	1S + 1I
+           &amp;2 -	&amp;7      	1S + 2I
+           &amp;8 -	&amp;1F     	1S + 3I
+          &amp;20 -	&amp;7F     	1S + 4I
+          &amp;80 -	&amp;1FF    	1S + 5I
+         &amp;200 -	&amp;7FF    	1S + 6I
+         &amp;800 -	&amp;1FFF   	1S + 7I
+        &amp;2000 -	&amp;7FFF   	1S + 8I
+        &amp;8000 -	&amp;1FFFF  	1S + 9I
+       &amp;20000 -	&amp;7FFFF  	1S + 10I
+       &amp;80000 -	&amp;1FFFFF 	1S + 11I
+      &amp;200000 -	&amp;7FFFFF 	1S + 12I
+      &amp;800000 -	&amp;1FFFFFF	1S + 13I
+     &amp;2000000 -	&amp;7FFFFFF	1S + 14I
+     &amp;8000000 -	&amp;1FFFFFFF	1S + 15I
+    &amp;20000000 -	&amp;FFFFFFFF	1S + 16I
+</pre>
+<p>这些乘法时序不适用于 ARM7DM。 ARM7DM 时序由下表给出: <! center BOXED ;                                               
+c s l l l l l
+c s l l l l l
+r1 l l l l l l. >
+<pre>                        		MLA/
+            Rs 的范围    	MUL	SMULL	SMLAL	UMULL	UMLAL
+
+           &amp;0 -	&amp;FF     	1S+1I	1S+2I	1S+3I	1S+2I	1S+3I
+         &amp;100 -	&amp;FFFF    	1S+2I	1S+3I	1S+4I	1S+3I	1S+4I
+       &amp;10000 -	&amp;FFFFFF  	1S+3I	1S+4I	1S+5I	1S+4I	1S+5I
+     &amp;1000000 -	&amp;FEFFFFFF	1S+4I	1S+5I	1S+6I	1S+5I	1S+6I
+    &amp;FF000000 -	&amp;FFFEFFFF	1S+3I	1S+4I	1S+5I	1S+5I	1S+6I
+    &amp;FFFF0000 -	&amp;FFFFFEFF	1S+2I	1S+3I	1S+4I	1S+5I	1S+6I
+    &amp;FFFFFF00 -	&amp;FFFFFFFF	1S+1I	1S+2I	1S+3I	1S+5I	1S+6I
+</pre>
+<a name="Long">
+<h3>长乘法(ARM7DM)</a>　</h3>
+<pre>xxxx0000 1UAShhhh llllssss 1001mmmm
+</pre>
+<p>典型的汇编语法:
+<pre>
+        UMULL  Rl,Rh,Rm,Rs
+        UMLAL  Rl,Rh,Rm,Rs
+        SMULL  Rl,Rh,Rm,Rs
+        SMLAL  Rl,Rh,Rm,Rs
+</pre>
+<p>这些指令做寄存器 Rm 和 Rs 的值的乘法并获得一个 64-bit 
+乘积。
+<p>在清除了 U 位的时候乘法是无符号的(UMULL 或 UMLAL)，否则是有符号的(SMULL, 
+SMLAL)。在清除了 A 
+位的时候，把结果的低有效的那一半存储在 Rl 
+中并把它的高有效的那一半存储到 Rh 中。在设置了 A 
+位的时候，转而把结果加到 Rh,Rl 的内容上。
+<p>不应该使用程序计数器 R15。Rh、Rl 和 Rm 应该不同。
+<p>如果设置了 S 位，则在 64-bit 位结果是设置 N 和 Z 
+标志，未定义 C 和 V 标志。
+<p>它们的时序可以在上面的乘法段落中找到。
+<p>　</p>
+<a name="Transfer">
+<h3>单一数据传送</h3>
+</a>
+<pre>xxxx010P UBWLnnnn ddddoooo oooooooo  Immediate form
+xxxx011P UBWLnnnn ddddcccc ctt0mmmm  Register form
+</pre>
+<p>典型的汇编语法:
+<pre>
+        LDR  Rd, [Rn, Rm, ASL#1]!
+        STR  Rd, [Rn],#2
+        LDRT Rd, [Rn]
+        LDRB Rd, [Rn]
+</pre>
+<p>这些指令装载/存储内存的一个字从/到一个寄存器。在指定地址时使用的第一个寄存器在术语上叫做基址寄存器。
+<p>如果设置了 L 位，则进行装载，否则进行存储。
+<p>如果设置了 P 
+位，则使用预先变址寻址，否则使用过后变址寻址。
+<p>如果设置了 U 位，则给出的偏移量被加到基址寄存器上 - 
+否则从中减去偏移量。
+<p>如果设置了 B 
+位，传送内存的一个字节，否则传送一个字。这在汇编器中表示为给根助记符的加上后缀‘B’。
+<p>W 位的解释依赖于使用的地址模式:
+<ul>
+  <li>对于预先变址寻址，设置 W 
+    位强制把用做地址转换的最终地址写回基址寄存器中。(例如，传送的副作用是 
+    Rn := Rn +/- offset。这在汇编器中表示为给指令加上后缀 
+    ‘!’。)
+  <li>对于过后变址寻址，地址总是写回，设置 W 
+    位指示在进行传送之前强制地址转换。这在汇编器中表示为给指令加上后缀‘T’。</li>
+</ul>
+<p>地址转换导致芯片告知内存系统这是一个用户模式传送，而不管此时芯片是处于用户模式中还是处于特权模式中。这是有用的，例如在写模拟器的时候: 
+假如一个用户模式程序一个内存区域执行了一个&nbsp; STF 
+指令，而用户模式代码不可以写这个内存区域。如果由一个 
+FPA 来指令它，它将异常终止。如果由一个 FPE 
+来执行它，它也应该异常终止。但是 FPE 
+运行在一个特权模式下，所以如果它使用普通存储指令，则它不会异常终止。为了使异常终止正确工作，在一个特权模式调用它时使用 
+STRT 替代普通存储指令，使其如同调用自用户模式。
+<p>如果使用这个指令的立即数形式，o 字段给出一个 12-bit 
+偏移量。如果使用了寄存器形式，则按对数据处理指令那样解码它，限制是不允许使用寄存器指令移位量。
+<p>如果 R15 被用做 Rd，不修改 PSR。PC 不应该被用在 Op2 中。
+<p>其他限制:
+<ul>
+  <li>在基址寄存器是 PC 的时候不要使用写回或过后变址。
+  <li>不要使用 PC 作为给 LDRB 或 STRB 的 Rd。
+  <li>在使用带有寄存器偏移量的过后变址时，不要让 Rn 和 Rm 
+    是同一个寄存器(这样做导致不可能从异常终止中恢复)。</li>
+</ul>
+<p>装载使用 1S + 1N + 1I + (1S + 1N 如果改变了 PC)个周期，而存储使用 
+2N 个周期。
+<p>　</p>
+<a name="Block">
+<h3>块数据传送</h3>
+</a>
+<pre>xxxx100P USWLnnnn llllllll llllllll
+</pre>
+<p>典型的汇编语法:
+<pre>
+        LDMFD   Rn!, {R0-R4, R8, R12}
+        STMEQIA Rn,   {R0-R3}
+        STMIB   Rn,   {R0-R3}^
+</pre>
+<p>使用这些指令来同时装载/存储多个寄存器从/到内存。使用的内存地址从在基址寄存器 
+Rn 中持有的值指定的内存地址要么增加要么减少地址，(可以存储基址寄存器自身)，并且最终的地址可以被写回到基址寄存器中。这些指令适合于实现栈，在进入/退出一个子例程时存储/恢复寄存器的内容。
+<p>U 位指示对每个寄存器地址将被 +4 (设置)所修改，还是被 -4 
+(清除)所修改。
+<p>W 位总是指示写回。
+<p>如果设置了 L 
+位，则指示进行一个装载操作，如果清除了，则指示存储。
+<p>使用 P 位指示在每次装载/存储之前还是之后增加/减少基址寄存器(参见下面表格)。
+<p>如果这个操作要装载/存储 Rl 则设置位 l。
+<p>汇编器典型的用条件代码跟随助记符根，并随后用两个字母代码指示 
+U 和 W 位的设置。 <! center BOXED ;                                               
+l l l l. >
+<pre>根	意思                             	P	U
+
+DA	在每次存储/装载之后减少 Rn        	0	0
+DB	在每次存储/装载之前减少 Rn        	1	0
+IA	在每次存储/装载之后增加 Rn        	0	1
+IB	在每次存储/装载之前增加 Rn        	1	1
+</pre>
+<p>在实现栈的时候有更清楚的同义词: <! center BOXED ;                                               
+l l. >
+<pre>根	意思
+
+EA	空升序栈
+ED	空降序栈
+FA	满升序栈
+FD	满降序栈
+</pre>
+<p>在一个空栈中，栈指针指向下一个空位置。在一个满栈中栈指针指向最顶端满位置。升序栈向高位置增长，而降序栈向低位置增长。
+<p>存储的寄存器总是最低编号的寄存器在内存中在最低地址。这可以影响入栈和出栈代码。例如，如果我想把 
+R1-R4 
+压入栈中，接着每次把它们中的两个装载回来，要使它们回到原先的寄存器，对于降序栈我需要做类似下面的事:
+<pre>
+   STMFD R13!,{R1,R2,R3,R4}  ;放置 R1 在内存低端，就是说在栈顶
+   LDMFD R13!,{R1,R2}
+   LDMFD R13!,{R3,R4}
+
+</pre>
+对于升序栈则是:
+<pre>
+   STMFA R13!,{R1,R2,R3,R4}  ; 放置 R4 在内存高端，就是说在栈顶
+   LDMFA R13!,{R3,R4}
+   LDMFA R13!,{R1,R2}
+
+</pre>
+<p>同义的代码如下: <! center BOXED ;                                               
+c c c. >
+<pre>代码	装载	存储
+
+EA	DB	IA
+ED	IB	DA
+FA	DA	IB
+FD	IA	DB
+</pre>
+S 
+为控制两个特殊的功能，它们被汇编器指示为在指令的结束处放置“^”:
+<ul>
+  <li>如果设置了 S 位，并且指令是 LDM 而 R15 
+    在寄存器列表中，则:
+    <ul>
+      <li>在 26-bit 特权模式下，装载 R15 的所有 32 位。
+      <li>在 26-bit 用户模式下，装载 R15 的 4 个标志位和 24 个 
+        PC 位。忽略装载值的位 27、26、1 和 0。
+      <li>在 32-bit 模式下，装载 R15 的所有 32 
+        位，但要注意底端的两位总是零，所以忽略装载到它们的任何东西。除此之外，把当前模式的 
+        SPSR 传送到 CPSR；因为用户模式没有 SPSR，这种类型的指令不应该用在 
+        32-bit 用户模式下。</li>
+    </ul>
+  <li>如果设置了 S 位，并且要么指令是 STM 要么 R15 
+    不在寄存器列表中，则传送用户模式的寄存器而不是当前模式的寄存器。在用户模式下不应该使用这个指令。</li>
+</ul>
+<p>特殊情况发生在基址寄存器存在于要传送的寄存器列表中的时候。
+<ul>
+  <li>基址寄存器总是可以被装载而没有任何问题。但是，如果基址寄存器被装载则不能指定写回 
+    - 你不能同时把写回值和装载值二者写到基址寄存器中!
+  <li>如果不使用写回则可以存储基址寄存器而没有任何问题。
+  <li>如果在存储包含基址寄存器的一个寄存器列表的时候使用了写回，则只有在基址寄存器是列表的第一个的情况下，才在写回之前写基址寄存器的值到内存。其他情况，写到内存中的值未被定义。</li>
+</ul>
+<p>进一步的特殊情况发生在程序计数器存在于要装载和保存的寄存器列表中。
+<ul>
+  <li>(在 26 位模式下) PSR 总是与 PC 一起保存((在所有模式下) 
+    PC 总是超出当前执行的指令的地址 12 字节，而不是通常的 
+    8 字节)。
+  <li>在装载时，只有在设置了 S 位的时候，才影响 PSR 
+    的在当前模式下可改变的位。</li>
+</ul>
+<p>PC 不应该作为基址寄存器。
+<p>块装载使用 nS + 1N + 1I + (1S + 1N 如果改变了 PC )个周期，而块存储使用 
+(n-1)S + 2N 个周期，这里的“n”是被传送的字的数目。
+<p><a name="Software">
+<h3>软件中断</h3>
+</a>
+<pre>xxxx1111 yyyyyyyy yyyyyyyy yyyyyyyy
+</pre>
+<p>典型的汇编语法:
+<pre>
+       SWI   &quot;OS_WriteI&quot;
+       SWINE &amp;400C0
+</pre>
+<p>在遇到软件中断的时候，ARM 切换到 SVC 模式中，把 R15 
+的当前值保存到 R14_SVC 中，并跳转到内存中的位置 8，它假定在这里可以找到一个 
+SWI 处理例程来解码刚才执行的 SWI 指令的低 24 
+位，并以特定于操作系统的方式做与 SWI 编号有关的事情。
+<p>在 ARM 上写的操作系统典型的使用 SWI 
+来为编程者提供各种例程。
+<p>执行 SWI 指令使用 2S + 1N 个周期(加上解码 SWI 
+编号和执行适当例程使用的时间)。
+<p><a name="CoproOp">
+<h3>协处理器数据操作</h3>
+</a>
+<pre>xxxx1110 oooonnnn ddddpppp qqq0mmmm
+</pre>
+<p>典型的汇编语法:
+<pre>
+       CDP p, o, CRd, CRn, CRm, q
+       CDP p, o, CRd, CRn, CRm
+</pre>
+<p>把这个指令传递给协处理器 p，告诉它在协处理器寄存器 
+CRn 和 CRm 上，进行操作 o，并把结果放置到 Crd 中。
+<p>可以使用 qqq 提供与操作有关的补充信息。
+<p>这些指令的准确意思依赖于使用的特定的协处理器；上面只是推荐的位的用法(实际上 
+FPA 就不遵守它)。 唯一强制的部分是 pppp 
+必须是协处理器编号: 协处理器设计者自由的按需要分配 oooo、nnnn、dddd、qqq 
+和 mmmm。
+<p>如果协处理器以与推荐的不同的方式使用这些位，可能需要使用汇编器宏来对人有意义的指令语法转换成正确的 
+CDP 指令。对最常使用的协处理器如 FPA，许多汇编器有额外的内置助记符并自动做这个转换。(例如，汇编 
+MUFEZ F0,F1,#10 成等价的 CDP 1,1,CR0,CR9,CR15,3。)
+<p>当前定义的协处理器编号包括: <! center BOXED ;                                               
+l l. >
+<pre>1 和 2	浮点单元
+15	Cache 控制器
+</pre>
+<p>如果做了到协处理器的一个调用而协处理器未做响应(通常因为它不存在!)，则调用未定义指令向量(完全同于后面描述的未定义指令)。这用于在没有 
+FPA 的机器上透明的提供 FP 支持。
+<p>执行这些指令使用 1S + bI 个周期，这里的 b 
+是协处理器在接受指令之前导致 ARM 忙等的周期数目: 
+这在协处理器控制之下。
+<p><a name="CoproTrans">
+<h3>协处理器数据传送和寄存器传送</h3>
+</a>
+<pre>xxxx110P UNWLnnnn DDDDpppp oooooooo LDC/STC
+xxxx1110 oooLNNNN ddddpppp qqq1MMMM MRC/MCR
+</pre>
+<p>它们还是依赖于使用的特定协处理器 p。
+<p>N 和 D 表示协处理器寄存器编号，n 和 d 是 ARM 
+处理器编号。o 是协处理器使用的操作。 M 
+表示协处理器自由的按需使用的位。
+<p>在第一种形式中，如果 L=1 则表示 LDC，否则是 STC。这些指令分别的表现得象 
+LDR 或 STR，在带有立即数偏移量的各种情况下，有下列例外。
+<ul>
+  <li>偏移量是 4*(oooooooo)，不是通常的 12-bit 常数。
+  <li>如果指定了 P=0 (过后变址)，则 W 必须是 1，而 W 是 1 
+    只是指示要求写回，而不是告诉内存系统 
+    这是一个用户模式传送。为将来的扩充保留 P=0 和 W=0 
+    的指令。
+  <li>在装载或存储一个或更多协处理器寄存器时，协处理器从 
+    DDDD 和 N 位确定要装载或存储多少和哪个寄存器: ARM 
+    所做的就是传送一个字到/从指示的地址，接着传送另一个到/从指示的地址 
+    + 4，接着传送一个到/从指示的地址 + 8，以此类推，直到协处理器告诉它停止。
+  <li>作为惯例，DDDD 表示要装载或存储的(第一个)协处理器寄存器，而 
+    N 以某种方式表示长度，使用 N=1 指示一个“长”形式。协处理器设计者可以自由的忽略它...
+  <li>下面是汇编语法:
+    <pre>
+LDC    p,CRd,[Rn,#20]   ;短形式 (N=0), 预先变址
+STCL   p,CRd,[Rn,#-32]! ;长形式 (N=1), 带写回的预先变址
+LDCNEL p,CRd,[Rn],#-100 ;长形式 (N=1), 过后变址
+</pre>
+  </li>
+</ul>
+<p>在第二种形式中，如果 L=1 则表示 MRC, 否则是 MCR。MRC 
+传送一个协处理器寄存器到一个 ARM 寄存器， MCR 
+做反方向传送(字母看起来象是写反了，记住在 ARM 
+汇编器中目的通常写在左边)。
+<p>MCR 传送 ARM 寄存器 Rd 的内容到协处理器。协处理器基于 ooo、dddd、qqq 
+和 MMMM 字段的值自由的做它想做的任何事情，尽管有一个“标准的”解释: 
+把它写到协处理器寄存器 CRN，使用操作 ooo，用 CRM 和 qqq 
+提供可能的补充控制。汇编语法是:
+<pre>
+       MCR   p,o,Rd,CRN,CRM,q
+</pre>
+<p>给 MCR 指令的 Rd 不应该是 R15。
+<p>MRC 从协处理器传送一个单一的字并把它放置到 ARM 寄存器 
+Rd 中。协处理器使用与 MCR 
+相同的字段自由的以任何方式生成这个字，有一个标准的解释：它来自 
+CRN，使用操作 ooo，用 CRM 和 qqq 
+提供可能的补充控制。汇编语法是:
+<pre>
+       MRC   p,o,Rd,CRN,CRM,q
+</pre>
+<p>如果给 MRC 指令的 Rd 是 R15，使用传送的字的顶端 4 
+位来设置标志；丢弃余下的 28 位。(例如，这种机制用于浮点比较指令。)
+<p>执行 LDC 和 STC 使用 (n-1)S + 2N + bI 个周期， MRC 使用 1S+bI+1C 
+个周期，而 MCR 使用 1S + (b+1)I + 1C 个周期，这里的 b 
+是协处理器在接受指令之前导致 ARM 忙等的周期数目: 
+这在协处理器控制之下，而 n 是传送的字的数目(注意这在协处理器而不是 
+ARM 的控制下)
+<p><a name="Swap">
+<h3>单一数据交换(ARM 3 和以后，包括 ARM 2aS)</a>　</h3>
+<pre>xxxx0001 0B00nnnn dddd0000 1001mmmm
+</pre>
+<p>典型的汇编语法:
+<pre>
+       SWP Rd, Rm, [Rn]
+</pre>
+<p>这些指令装载一个内存的一个字(用寄存器 Rn 给出地址)到一个寄存器 
+Rd 并存储寄存器 Rm 到相同的地址。Rm 和 Rd 
+可以是同一个寄存器，在这种情况下交换寄存器和内存位置的内容。装载和存储操作通过设置 
+LOCK 引角(pin)为高电平来在操作期间锁定在一起，这指示内存管理器它们应当被没有中断的完成。
+<p>如果设置了 B 
+位，则传送一字节的内存，否则传送一个字。
+<p>Rd、Rn、和 Rm 都不能是 R15。
+<p>执行这个指令使用 1S + 2N + 1I 个周期。
+<p><a name="Status">
+<h3>状态寄存器传送(ARM 6 和以后)</a>　</h3>
+<pre>xxxx0001 0s10aaaa 11110000 0000mmmm  MSR  寄存器形式
+xxxx0011 0s10aaaa 1111rrrr bbbbbbbb  MSR  立即数形式
+xxxx0001 0s001111 dddd0000 00000000  MRS
+</pre>
+<p>典型的汇编语法:
+<pre>
+       MSR   SPSR_all, Rm          ;aaaa = 1001
+       MSR   CPSR_flg, #&amp;F0000000  ;aaaa = 1000
+       MSRNE CPSR_ctl, Rm          ;aaaa = 0001
+       MRS   Rd, CPSR
+</pre>
+<p>设置 s 位时意味着访问当前特权模式的 SPSR，而不是 CPSR。只能在特权模式下执行这个命令的时候设置此位。
+<p>使用 MSR 来传送一个寄存器或常数到一个状态寄存器。
+<p>aaaa 位接受下列值: <! center BOXED ;                                               
+l l. >
+<pre>值	意思
+
+0001	设置有关的 PSR 的控制位。
+1000	设置有关的 PSR 的标志位。
+1001	设置有关的 PSR 的控制位和标志位(就是说所有现存的位)。
+</pre>
+其他的值为将来的扩充而保留。
+<p>在寄存器形式中，源寄存器是 Rm。在立即数形式中，来源是 
+#b, ROR #2r。
+<p>R15 不应该被指定为 MRS 指令的源寄存器。
+<p>使用 MRS 来传送处理器的状态到一个寄存器。
+<p>dddd 位存储目的寄存器的编号；Rd 一定不能是 R15。
+<p>N.B. 指令编码对应于对应与操作码(opcode)是 10xx 并清除了 S 
+位的数据处理指令(就是测试指令)。
+<p>执行这些指令总是使用 1S 个周期。
+<p><a name="Undefined">
+<h3>未定义指令</h3>
+</a>
+<pre>xxxx0001 yyyyyyyy yyyyyyyy 1yy1yyyy 专属 ARM 2
+xxxx011y yyyyyyyy yyyyyyyy yyy1yyyy
+</pre>
+<p>这些指令目前未定义。在遇到未定义指令时，ARM 切换到 SVC 
+模式(在 ARM 3 和以后)或 Undef 模式(在 ARM 6 和以后)，把 R15 
+的旧有值放置到 R14_SVC (或 R14_UND)中并跳转到一个位置，在那里它希望找到解码这个未定义指令的代码并相应的执行它。
+<p>注意:
+<ul>
+  <li>这些指令被文档为“未定义的”，原因是这种方式下它们进入未定义指令处理器陷阱。许多其他指令是以更宽松的方式未被定义的，而不说出它们做什么。 
+    例如，下面形式的位模式(pattern):
+    <pre>               xxxx0000 01xxxxxx xxxxxxxx 1001xxxx
+</pre>
+    与数据处理的指令、乘法、长乘法和 SWP 
+    指令有关，但却不是其中一个的原因是:
+    <ul>
+      <li>数据处理指令的位 25 = 0 和位 4 = 1 
+        时有寄存器控制的移位，所以必须位 7 = 0。
+      <li>乘法指令的位 23:22 = 00。
+      <li>长乘法指令的位 23:22 = 1U。
+      <li>SWP指令的位 24 = 1。</li>
+    </ul>
+    这些指令只是简单的未定义做什么，但是上面列出的那些指令实际上<b>定义</b>为进入未定义指令陷阱，至少直到将来为它们找到某种用途。
+  <li>注意“专属 ARM2”的未定义指令包括了在 ARM3/ARM2as 
+    和以后成为 SWP 的那些指令。</li>
+</ul>
+<p>　
+<hr>
+</body>
+
+</html>

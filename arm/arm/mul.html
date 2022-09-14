@@ -1,0 +1,67 @@
+<!doctype html public "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+<title>乘法指令</title>
+</head>
+
+<body TopMargin=0 bgcolor="#f0f0f0" text="#000000" link="#0022dd" vlink="#002288">
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+    
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="100"></td>
+    <td>
+      <h1 align="center"><font color="#202020">乘法指令</font></h1>
+    </td>
+    <td align="center" width="100"></td>
+</table>
+<ul>
+  <li><a href="#mla">MLA</a></li>
+  <li><a href="#mul">MUL</a></li>
+</ul>
+<p><a href="ARMinstrs.html#Multiplication">指令格式</a></p>
+<p>这两个指令与普通<a href="mov.html">算术</a>指令在对操作数的限制上有所不同:
+<ol>
+  <li>给出的所有操作数、和目的寄存器必须为简单的寄存器。
+  <li>你不能对操作数 2 使用立即值或被移位的寄存器。
+  <li>目的寄存器和操作数 1 必须是不同的寄存器。
+  <li>最后，你不能指定 R15 为目的寄存器。
+</ol>
+<a name="mla"></a>
+<h2>MLA : 带累加的乘法</h2>
+<p>(<font color="#0000FF">M</font>ultip<font color="#0000FF">l</font>ication 
+with <font color="#0000FF">A</font>ccumulate)</p>
+<pre>
+  MLA{条件}{S}  &lt;dest&gt;, &lt;op 1&gt;, &lt;op 2&gt;, &lt;op 3&gt;
+
+                dest = (op_1 * op_2) + op_3
+</pre>
+<code>MLA</code> 的行为同于 <code>MUL</code>，但它把操作数 3 
+的值加到结果上。这在求总和时有用。
+<p>　
+<p><a name="mul"></a></p>
+<h2>MUL : 乘法</h2>
+<p>(<font color="#0000FF">Mul</font>tiplication)</p>
+<pre>
+  MUL{条件}{S}  &lt;dest&gt;, &lt;op 1&gt;, &lt;op 2&gt;
+
+                dest = op_1 * op_2
+</pre>
+<code>MUL</code> 提供 32 
+位整数乘法。如果操作数是有符号的，可以假定结果也是有符号的。
+<p>　
+<hr size="3">
+<a href="index.html">回到目录页</a>
+
+</body>
+
+</html>

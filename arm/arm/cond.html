@@ -1,0 +1,222 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+<title>条件执行</title>
+</head>
+
+<body TopMargin=0 bgcolor="#f0f0f0" text="#000000" link="#0022dd" vlink="#002288">
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+    
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="100"></td>
+    <td>
+      <h1 align="center"><font color="#202020">条件执行</font></h1>
+    </td>
+    <td align="center" width="100"></td>
+</table>
+<p>　</p>
+<h2>条件执行</h2>
+<p><a href="ARMinstrs.html#Condition">指令格式</a></p>
+ARM 
+处理器的一个非常特殊的特征是它的条件执行。我们指的不是基本的如果进位则分支，ARM 
+使这个逻辑阶段进一步深化为如果进位则 <code>XXX </code>- 
+这里的 XXX 是任何东西。
+<p>为了举例，下面是 Intel 8086 处理器分支指令的一个列表:
+<pre>
+  JA    Jump if Above
+  JAE   Jump if Above or Equal
+  JB    Jump if Below
+  JBE   Jump if Below or Equal
+  JC    Jump if Carry
+  JCXZ  Jump if CX Zero (CX is a register that can be used for loop counts)
+  JE    Jump if Equal
+  JG    Jump if Greater than
+  JGE   Jump if Greater than or Equal
+  JL    Jump if Less than
+  JLE   Jump if Less Than or Equal
+  JMP   JuMP
+  JNA   Jump if Not Above
+  JNAE  Jump if Not Above or Equal
+  JNB   Jump if Not Below
+  JNBE  Jump if Not Below or Equal
+  JNC   Jump if No Carry
+  JNE   Jump if Not Equal
+  JNG   Jump if Not Greater than
+  JNGE  Jump if Not Greater than or Equal
+  JNL   Jump if Not Less than
+  JNLE  Jump if Not Less than or Equal
+  JNO   Jump if Not Overflow
+  JNP   Jump if Not Parity
+  JNS   Jump if Not Sign
+  JNZ   Jump if Not Zero
+  JO    Jump if Overflow
+  JP    Jump if Parity
+  JPE   Jump if Parity Even
+  JPO   Jump if Parity Odd
+  JS    Jump if Sign
+  JZ    Jump if Zero
+
+80386 添加了:
+  JECXZ Jump if ECX Zero
+</pre>
+作为对比，ARM 处理器只提供了:
+<pre>
+  B     分支
+  BL    带连接的分支
+</pre>
+但 ARM 
+提供了条件执行，你可以不受这个表面上不灵活的方式的限制:
+<pre>
+  BEQ   Branch if EQual
+  BNE   Branch if Not Equal
+  BVS   Branch if oVerflow Set
+  BVC   Branch if oVerflow Clear
+  BHI   Branch if HIgher
+  BLS   Branch if Lower or the Same
+  BPL   Branch if PLus
+  BMI   Branch if MInus
+  BCS   Branch if Carry Set
+  BCC   Branch if Carry Clear
+  BGE   Branch if Greater than or Equal
+  BGT   Branch if Greater Than
+  BLE   Branch if Less than or Equal
+  BLT   Branch if Less Than
+
+  BLEQ  Branch with Link if EQual
+  ....
+  BLLT  Branch with Link if Less Than
+</pre>
+还有两个代码，
+<ul>
+  <li><code>AL</code> - ALways，缺省条件所以不须指定
+  <li><code>NV</code> - NeVer，不是非常有用。你无论如何不要使用这个代码...
+</ul>
+当你发现所有 Bxx 
+指令实际上是同一个指令的时候，紧要关头就到了。接着你会想，如果你可以在一个分支指令上加上所有这些条件，那么对一个寄存器装载指令能否加上它们? 
+答案是可以。
+<p>下面是可获得的条件代码的列表:
+<dl>
+  <dt>EQ : 等于
+  <dd>如果一次比较之后设置了 Z 标志。
+  <dt>　</dt>
+  <dt>NE : 不等于
+  <dd>如果一次比较之后清除了 Z 标志。
+  <dt>　</dt>
+  <dt>VS : 溢出设置
+  <dd>如果在一次算术操作之后设置了 V 
+    标志，计算的结果不适合放入一个 32bit 目标寄存器中。
+  <dt>　</dt>
+  <dt>VC : 溢出清除
+  <dd>如果清除了 V 标志，与 VS 相反。
+  <dt>　</dt>
+  <dt>HI : 高于(无符号)
+  <dd>如果一次比较之后设置了 C 标志<b>并</b>清除了 Z 标志。
+  <dt>　</dt>
+  <dt>LS : 低于或同于(无符号)
+  <dd>如果一次比较操作之后清除了 C 标志<b>或</b>设置了 Z 
+    标志。
+  <dt>　</dt>
+  <dt>PL : 正号
+  <dd>如果一次算术操作之后清除了 N。出于定义‘正号’的目的，零是正数的原因是它不是负数...
+  <dt>　</dt>
+  <dt>MI : 负号
+  <dd>如果一次算术操作之后设置了 N 标志。
+  <dt>　</dt>
+  <dt>CS : 进位设置
+  <dd>如果一次算术操作或移位操作之后设置了 C 
+    标志，操作的结果不能表示为 32bit。你可以把 C 
+    标志当作结果的第 33 位。
+  <dt>　</dt>
+  <dt>CC : 进位清除
+  <dd>与 CS 相反。
+  <dt>　</dt>
+  <dt>GE : 大于或等于(有符号)
+  <dd>如果一次比较之后...<br>
+    设置了 N 标志<b>并</b>设置了 V 标志<br>
+    或者...<br>
+    清除了 N 标志<b>并</b>清除了 V 标志。
+  <dt>　</dt>
+  <dt>GT : 大于(有符号)
+  <dd>如果一次比较之后...<br>
+    设置了 N 标志<b>并</b>设置了 V 标志<br>
+    或者...<br>
+    清除了 N 标志<b>并</b>清除了 V 标志<br>
+    <b>并且</b>...<br>
+    清除了 Z 标志。
+  <dt>　</dt>
+  <dt>LE : 小于或等于(有符号)
+  <dd>如果一次比较之后...<br>
+    设置了 N 标志<b>并</b>清除了 V 标志<br>
+    或者...<br>
+    清除了 N 标志<b>并</b>设置了 V 标志<br>
+    <b>并且</b>...<br>
+    设置了 Z 标志。
+  <dt>　</dt>
+  <dt>LT : 小于(有符号)
+  <dd>如果一次比较之后...<br>
+    设置了 N 标志<b>并</b>清除了 V 标志。<br>
+    或者...<br>
+    清除了 N 标志<b>并</b>设置了 V 标志。
+  <dt>　</dt>
+  <dt>AL : 总是
+  <dd>缺省条件，所以不用明显声明。
+  <dt>　</dt>
+  <dt>NV : 从不
+  <dd>不是特别有用，它表示应当永远不执行这个指令。是穷人的 
+    NOP。<br>
+    包含 NV 是为了完整性(与 AL 相对)，你不应该在你的代码中使用它。
+</dl>
+有一个在最后的条件代码 <code>S，</code>它以相反的方式工作。当用于一个指令的时候，导致更改状态标志。这不是自动发生的 
+- 除非这些指令的目的是设置状态。例如:
+<pre>
+  ADD     R0, R0, R1
+
+  ADDS    R0, R0, R1
+
+  ADDEQS  R0, R0, R1
+</pre>
+第一个例子是一个基本的加法(把 R1 的值增加到 R0)，它不影响状态寄存器。
+<p>第二个例子是同一个加法，只不过它导致更改状态寄存器。
+<p>最后一个例子是同一个加法，更改状态寄存器。不同在于它是一个有条件的指令。只有前一个操作的结果是 
+EQ (如果设置了 Z 标志)的时候它才执行。
+<p>下面是条件执行的一个工作中的例子。你把寄存器 0 
+与存储在寄存器 10 中内容相比较。如果不等于 R10，则调用一个软件中断，增加它并分支回来再次做这些。否则清除 
+R10 并返回到调用它的那部分代码(它的地址存储在 R14)。
+<pre>
+
+  \ 条件执行的一个例子
+
+  .loop                           ; 标记循环开始位置
+  CMP     R0, R10                 ; 把 R0 与 R10 相比较
+  SWINE   &amp;40017                  ; 不等于: 调用 SWI &amp;40017
+  ADDNE   R0, R0, #1              ;         向 R0 加 1
+  BNE     loop                    ;         分支到 'loop'
+  MOV     R10, #0                 ; 等于  : 设置 R10 为零
+  LDMFD   R13!, {R0-R12,PC}       ;         返回到调用者
+</pre>
+注解:
+<ul>
+  <li>SWI 编号就象我写的这样。在 RISC OS 下，它是给 <i>Econet_DoImmediate</i> 
+    的编号。不要字面的接受它，这只是一个例子!
+  <li>你可能以前没见过 <code>LDMFD，</code>它从栈中装载多个寄存器。在这个例子中，我们从一个完全正式的栈中装载 
+    R0 至 R12 和 R14。关于寄存器装载和存储的更多信息请参阅 <a href="str.html">str.html</a>。
+  <li>我说要装载 R14。那么为什么要把它放入 PC 中? 
+    原因是此时 R14 存储的值包含返回地址。我们也可以采用:<br>
+    <code>LDMFD&nbsp;&nbsp;&nbsp;R13!, {R0-R12,R14}<br>
+    MOV&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PC, R14</code><br>
+    但是直接恢复到 PC 中可以省略这个 <code>MOV</code> 语句。
+  <li>最后，这些寄存器很有可能被一个 SWI 调用所占用(依赖于在调用期间执行的代码)，所以你最好把你的重要的寄存器压入栈中，以后在恢复它们。
+</ul>
+<hr size="3">
+<a href="index.html">回到目录页</a>
+
+</body>
+
+</html>

@@ -1,0 +1,557 @@
+<!doctype html public "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+<title>APCS 简介</title>
+</head>
+
+<body TopMargin=0 bgcolor="#f0f0f0" text="#000000" link="#0022dd" vlink="#002288">
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+    
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="100"></td>
+    <td>
+      <h1 align="center"><font color="#202020">APCS 简介</font></h1>
+      <h3 align="center"><font color="#800080">(ARM 过程调用标准)</font></h3>
+    </td>
+    <td align="center" width="100"></td>
+</table>
+<ul>
+  <li><a href="#01">介绍</a></li>
+  <li><a href="#02">寄存器命名</a></li>
+  <li><a href="#03">设计关键</a></li>
+  <li><a href="#04">一致性</a></li>
+  <li><a href="#05">栈</a></li>
+  <li><a href="#06">回溯结构</a></li>
+  <li><a href="#07">实际参数</a></li>
+  <li><a href="#08">函数退出</a></li>
+  <li><a href="#09">建立栈回溯结构</a></li>
+  <li><a href="#10">APCS 标准</a></li>
+  <li><a href="#11">对编码有用的东西</a></li>
+</ul>
+<p>　</p>
+<h2><a name="01">介绍</a></h2>
+<b>APCS</b>，ARM 过程调用标准(<font color="#0000FF">A</font>RM <font color="#0000FF">P</font>rocedure 
+<font color="#0000FF">C</font>all <font color="#0000FF">S</font>tandard)，提供了紧凑的编写例程的一种机制，定义的例程可以与其他例程交织在一起。最显著的一点是对这些例程来自哪里没有明确的限制。它们可以编译自 
+C、 Pascal、也可以是用汇编语言写成的。
+<p>APCS 定义了:
+<ul>
+  <li>对寄存器使用的限制。
+  <li>使用栈的惯例。
+  <li>在函数调用之间传递/返回参数。
+  <li>可以被‘回溯’的基于栈的结构的格式，用来提供从失败点到程序入口的函数(和给予的参数)的列表。
+</ul>
+<p>APCS 
+不一个单一的给定标准，而是一系列类似但在特定条件下有所区别的标准。例如，APCS-R 
+(用于 RISC OS)规定在函数进入时设置的标志必须在函数退出时复位。在 
+32 位标准下，并不是总能知道进入标志的(没有 USR_CPSR)，所以你不需要恢复它们。如你所预料的那样，在不同版本间没有相容性。希望恢复标志的代码在它们未被恢复的时候可能会表现失常...
+<p>如果你开发一个基于 ARM 的系统，不要求你去实现 APCS。但建议你实现它，因为它不难实现，且可以使你获得各种利益。但是，如果要写用来与编译后的 
+C 连接的汇编代码，则必须使用 APCS。编译器期望特定的条件，在你的加入(add-in)代码中必须得到满足。一个好例子是 
+APCS 定义 a1 到 a4 可以被破坏，而 v1 到 v6 
+必须被保护。现在我确信你正在挠头并自言自语“a 是什么? v 
+是什么?”。所以首先介绍 APCS-R 寄存器定义...
+<p>　
+<h2><a name="02">寄存器命名</a></h2>
+<p align="left">APCS 对我们通常称为 R0 到 R14 
+的寄存器起了不同的名字。使用汇编器预处理器的功能，你可以定义 
+R0 
+等名字，但在你修改其他人写的代码的时候，最好还是学习使用 
+APCS 名字。
+<p align="left"><center></p>
+<table>
+  <tr bgcolor="#cccccc" align="center">
+    <td colspan="3">寄存器名字</td>
+  </tr>
+  <tr bgcolor="#dddddd">
+    <td><code>Reg #&nbsp;</code></td>
+    <td><code>APCS&nbsp;&nbsp;</code></td>
+    <td>意义</td>
+  <tr>
+    <td><code>R0</code></td>
+    <td><code>a1</code></td>
+    <td>工作寄存器</td>
+  </tr>
+  <tr>
+    <td><code>R1</code></td>
+    <td><code>a2</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R2</code></td>
+    <td><code>a3</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R3</code></td>
+    <td><code>a4</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R4</code></td>
+    <td><code>v1</code></td>
+    <td>必须保护</td>
+  </tr>
+  <tr>
+    <td><code>R5</code></td>
+    <td><code>v2</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R6</code></td>
+    <td><code>v3</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R7</code></td>
+    <td><code>v4</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R8</code></td>
+    <td><code>v5</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R9</code></td>
+    <td><code>v6</code></td>
+    <td align="center">&quot;</td>
+  </tr>
+  <tr>
+    <td><code>R10</code></td>
+    <td><code>sl</code></td>
+    <td>栈限制</td>
+  </tr>
+  <tr>
+    <td><code>R11</code></td>
+    <td><code>fp</code></td>
+    <td>桢指针</td>
+  </tr>
+  <tr>
+    <td><code>R12</code></td>
+    <td><code>ip</code></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><code>R13</code></td>
+    <td><code>sp</code></td>
+    <td>栈指针</td>
+  </tr>
+  <tr>
+    <td><code>R14</code></td>
+    <td><code>lr</code></td>
+    <td>连接寄存器</td>
+  </tr>
+  <tr>
+    <td><code>R15</code></td>
+    <td><code>pc</code></td>
+    <td>程序计数器</td>
+  </tr>
+</table>
+</center>
+<p>&nbsp;译注：ip 是指令指针的简写。
+<p>这些名字不是由标准的 Acorn 的 objasm(版本 2.00)所定义的，但是 
+objasm 的后来版本，和其他汇编器(比如 Nick Robert 的 ASM)定义了它们。要定义一个寄存器名字，典型的，你要在程序最开始的地方使用 
+<code>RN</code> 宏指令(directive):
+<pre>a1     RN      0
+a2     RN      1
+a3     RN      2
+    ...等...
+
+r13    RN      13
+sp     RN      13
+r14    RN      14
+lr     RN      r14
+pc     RN      15
+</pre>
+这个例子展示了一些重要的东西:
+<ol>
+  <li>寄存器可以定义多个名字 - 你可以定义‘r13’和‘sp’二者。
+  <li>寄存器可以定义自前面定义的寄存器 - ‘lr’定义自叫做‘r14’的寄存器。<br>
+    (对于 objasm 是正确的，其他汇编器可能不是这样)
+</ol>
+<h2><a name="03">设计关键</a></h2>
+<ul>
+  <li>函数调用应当快、小、和易于(由编译器来)优化。
+  <li>函数应当可以妥善处理多个栈。
+  <li>函数应当易于写可重入和可重定位的代码；主要通过把可写的数据与代码分离来实现。
+  <li>但是最重要的是，它应当简单。这样汇编编程者可以非常容易的使用它的设施，而调试者能够非常容易的跟踪程序。
+</ul>
+<p>　
+<h2><a name="04">一致性</a></h2>
+程序的遵循 APCS 的部分在调用外部函数时被称为“一致”。在程序执行期间的所有时候都遵循 
+APCS (典型的，由编译器生成的程序)被称为“严格一致”。协议指出，假如你遵守正确的进入和退出参数，你可以在你自己的函数范围内做你需要的任何事情，而仍然保持一致。这在有些时候是必须的，比如在写 
+SWI 伪装(veneers)的时候使用了许多给实际的 SWI 
+调用的寄存器。
+<p>　
+<h2><a name="05">栈</a></h2>
+栈是链接起来的‘桢’的一个列表，通过一个叫做‘回溯结构’的东西来链接它们。这个结构存储在每个桢的高端。按递减地址次序分配栈的每一块。寄存器 
+<code>sp</code> 
+总是指向在最当前桢中最低的使用的地址。这符合传统上的满降序栈。在 
+APCS-R 中，寄存器 <code>sl</code> 持有一个栈限制，你递减 <code>sp</code> 
+不能低于它。在当前栈指针和当前栈之间，不应该有任何其他 
+APCS 
+函数所依赖的东西，在被调用的时候，函数可以为自己设置一个栈块。
+<p>可以有多个栈区(chunk)。它们可以位于内存中的任何地址，这里没有提供规范。典型的，在可重入方式下执行的时候，这将被用于为相同的代码提供多个栈；一个类比是 
+FileCore，它通过简单的设置‘状态’信息和并按要求调用相同部分的代码，来向当前可获得的 
+FileCore 文件系统(ADFS、RAMFS、IDEFS、SCSIFS 等)提供服务。
+<p>　</p>
+<h2><a name="06">回溯结构</a></h2>
+寄存器 <code>fp</code> (桢指针)应当是零或者是指向栈回溯结构的列表中的最后一个结构，提供了一种追溯程序的方式，来反向跟踪调用的函数。
+<p>回溯结构是:
+<pre>
+地址高端
+
+   保存代码指针        [fp]         fp 指向这里
+   返回 lr 值          [fp, #-4] 
+   返回 sp 值          [fp, #-8] 
+   返回 fp 值          [fp, #-12]  指向下一个结构 
+   [保存的 sl]
+   [保存的 v6] 
+   [保存的 v5] 
+   [保存的 v4] 
+   [保存的 v3] 
+   [保存的 v2]
+   [保存的 v1]
+   [保存的 a4]
+   [保存的 a3]
+   [保存的 a2]
+   [保存的 a1]
+   [保存的 f7]                          三个字
+   [保存的 f6]                          三个字
+   [保存的 f5]                          三个字
+   [保存的 f4]                          三个字
+   
+地址低端
+</pre>
+<p>这个结构包含 4 至 27 
+个字，在方括号中的是可选的值。如果它们存在，则必须按给定的次序存在(例如，在内存中保存的 
+a3 下面可以是保存的 f4，但 a2-f5 则不能存在)。浮点值按‘内部格式’存储并占用三个字(12 
+字节)。</p>
+<p>fp 寄存器指向当前执行的函数的栈回溯结构。返回 fp 
+值应当是零，或者是指向由调用了这个当前函数的函数建立的栈回溯结构的一个指针。而这个结构中的返回 
+fp 
+值是指向调用了调用了这个当前函数的函数的函数的栈回溯结构的一个指针；并以此类推直到第一个函数。
+<p>在函数退出的时候，把返回连接值、返回 sp 值、和返回 fp 
+值装载到 pc、sp、和 fp 中。
+<pre>
+  #include &lt;stdio.h&gt;
+
+  void one(void);
+  void two(void);
+  void zero(void);
+
+  int main(void)
+  {
+     one();
+     return 0;
+  }
+
+  void one(void)
+  {
+     zero();
+     two();
+     return;
+  }
+
+  void two(void)
+  {
+     printf(&quot;main...one...two\n&quot;);
+     return;
+  }
+
+  void zero(void)
+  {
+     return;
+  }
+
+
+  当它在屏幕上输出消息的时候，
+  APCS 回溯结构将是:
+
+      fp ----&gt; two_structure
+               return link
+               return sp
+               return fp  ----&gt; one_structure
+               ...              return link
+                                return sp
+                                return fp  ----&gt; main_structure
+                                ...              return link
+                                                 return sp
+                                                 return fp  ----&gt; 0
+                                                 ...
+</pre>
+所以，我们可以检查 fp 并参看给函数‘two’的结构，它指向给函数‘one’的结构，它指向给‘main’的结构，它指向零来终结。在这种方式下，我们可以反向追溯整个程序并确定我们是如何到达当前的崩溃点的。值得指出‘zero’函数，因为它已经被执行并退出了，此时我们正在做它后面的打印，所以它曾经在回溯结构中，但现在不在了。值得指出的还有对于给定代码不太可能总是生成象上面那样的一个 
+APCS 结构。原因是不调用任何其他函数的函数不要求完全的 
+APCS 头部。
+<p><br>
+为了更细致的理解，下面是代码是 Norcroft C v4.00 
+为上述代码生成的...</p>
+<pre>
+        AREA |C$$code|, CODE, READONLY
+
+        IMPORT  |__main|
+|x$codeseg|
+        B       |__main|
+
+        DCB     &amp;6d,&amp;61,&amp;69,&amp;6e
+        DCB     &amp;00,&amp;00,&amp;00,&amp;00
+        DCD     &amp;ff000008
+
+        IMPORT  |x$stack_overflow|
+        EXPORT  one
+        EXPORT  main
+main
+        MOV     ip, sp
+        STMFD   sp!, {fp,ip,lr,pc}
+        SUB     fp, ip, #4
+        CMPS    sp, sl
+        BLLT    |x$stack_overflow|
+        BL      one
+        MOV     a1, #0
+        LDMEA   fp, {fp,sp,pc}^
+
+        DCB     &amp;6f,&amp;6e,&amp;65,&amp;00
+        DCD     &amp;ff000004
+
+        EXPORT  zero
+        EXPORT  two
+one
+        MOV     ip, sp
+        STMFD   sp!, {fp,ip,lr,pc}
+        SUB     fp, ip, #4
+        CMPS    sp, sl
+        BLLT    |x$stack_overflow|
+        BL      zero
+        LDMEA   fp, {fp,sp,lr}
+        B       two
+
+        IMPORT  |_printf|
+two
+        ADD     a1, pc, #L000060-.-8
+        B       |_printf|
+L000060
+        DCB     &amp;6d,&amp;61,&amp;69,&amp;6e
+        DCB     &amp;2e,&amp;2e,&amp;2e,&amp;6f
+        DCB     &amp;6e,&amp;65,&amp;2e,&amp;2e
+        DCB     &amp;2e,&amp;74,&amp;77,&amp;6f
+        DCB     &amp;0a,&amp;00,&amp;00,&amp;00
+
+zero
+        MOVS    pc, lr
+
+        AREA |C$$data|
+
+|x$dataseg|
+
+        END
+</pre>
+这个例子不遵从 32 为体系。APCS-32 
+规定只是简单的说明了标志不需要被保存。所以删除 LDM 的‘^’后缀，并在函数 
+zero 中删除 MOVS 的‘S’后缀。则代码就与遵从 32-bit 
+的编译器生成的一样了。
+<p>保存代码指针包含这条设置回溯结构的指令(STMFD ...)的地址再加上 
+12 字节。记住，对于 26-bit 代码，你需要去除其中的 PSR 
+来得到实际的代码地址。
+<p>现在我们查看刚进入函数的时候:
+<ul>
+  <li><b>pc</b> 总是包含下一个要被执行的指令的位置。
+  <li><b>lr</b> (总是)包含着退出时要装载到 <b>pc</b> 中的值。在 
+    26-bit 位代码中它还包含着 PSR。
+  <li><b>sp</b> 指向当前的栈块(chunk)限制，或它的上面。这是用于复制临时数据、寄存器和类似的东西到其中的地方。在 
+    RISC OS 下，你有可选择的至少 256 字节来扩展它。
+  <li><b>fp</b> 要么是零，要么指向回溯结构的最当前的部分。
+  <li>函数实参布置成(下面)描述的那样。
+</ul>
+<p>　
+<h2><a name="07">实际参数</a></h2>
+APCS 
+没有定义记录、数组、和类似的格局。这样语言可以自由的定义如何进行这些活动。但是，如果你自己的实现实际上不符合 
+APCS 
+的精神，那么将不允许来自你的编译器的代码与来自其他编译器的代码连接在一起。典型的，使用 
+C 语言的惯例。
+<ul>
+  <li>前 4 个整数实参(或者更少!)被装载到 a1 - a4。
+  <li>前 4 个浮点实参(或者更少!)被装载到 f0 - f3。
+  <li>其他任何实参(如果有的话)存储在内存中，用进入函数时紧接在 
+    sp 
+    的值上面的字来指向。换句话说，其余的参数被压入栈顶。所以要想简单。最好定义接受 
+    4 个或更少的参数的函数。
+</ul>
+<p>　
+<h2><a name="08">函数退出</a></h2>
+通过把返回连接值传送到程序计数器中来退出函数，并且:
+<ul>
+  <li>如果函数返回一个小于等于一个字大小的值，则把这个值放置到 
+    a1 中。
+  <li>如果函数返回一个浮点值，则把它放入 f0 中。
+  <li>sp、fp、sl、v1-v6、和 f4-f7 应当被恢复(如果被改动了)为包含在进入函数时它所持有的值。<br>
+    我测试了故意的破坏寄存器，而结果是(经常在程序完全不同的部分)出现不希望的和奇异的故障。
+  <li>ip、lr、a2-a4、f1-f3 和入栈的这些实参可以被破坏。
+</ul>
+在 32 位模式下，不需要对 PSR 
+标志进行跨越函数调用的保护。在 26 
+位模式下必须这样，并通过传送 lr 到 pc 中(MOVS、或 LDMFD xxx^)来暗中恢复。必须从 
+lr 重新装载 N、Z、C 和 V，跨越函数保护这些标志不是足够的。
+<pre>
+&nbsp;
+</pre>
+<h2><a name="09">建立栈回溯结构</a></h2>
+对于一个简单函数(固定个数的参数，不可重入)，你可以用下列指令建立一个栈回溯结构:
+<pre>function_name_label
+        MOV     ip, sp
+        STMFD   sp!, {fp,ip,lr,pc}
+        SUB     fp, ip, #4
+</pre>
+这个片段(来自上述编译后的程序)是最基本的形式。如果你要破坏其他不可破坏的寄存器，则你应该在这个 
+STMFD 指令中包含它们。
+<p>下一个任务是检查栈空间。如果不需要很多空间(小于 256 
+字节)则你可以使用:
+<pre>        CMPS    sp, sl
+        BLLT    |x$stack_overflow|
+
+
+这是 C 版本 4.00 处理溢出的方式。在以后的版本中，你要调用 |__rt_stkovf_split_small|。
+</pre>
+<p>接着做你自己的事情...
+<p>通过下面的指令完成退出:
+<pre>        LDMEA   fp, {fp,sp,pc}^</pre>
+还有，如果你入栈了其他寄存器，则也在这里重新装载它们。选择这个简单的 
+LDM 退出机制的原因是它比分支到一个特殊的函数退出处理器(handler)更容易和更合理。
+<p>用在回溯中的对这个协议的一个扩展是把函数名字嵌入到代码中。紧靠在函数(和 
+<code>MOV ip, sp</code>)的前面的应该是:
+<pre>        DCD     &amp;ff0000xx</pre>
+这里的‘xx’是函数名字符串的长度(包括填充和终结符)。这个字符串是字对齐、尾部填充的，并且应当被直接放置在 
+DCD &amp;ff....的前面。
+<p>所以一个完整的栈回溯代码应当是:
+<pre>        DCB     &quot;my_function_name&quot;, 0, 0, 0, 0
+        DCD     &amp;ff000010
+my_function_name
+        MOV     ip, sp
+        STMFD   sp!, {fp, ip, lr, pc}
+        SUB     fp, ip, #4
+
+        CMPS    sp, sl                    ; 如果你不使用栈
+        BLLT    |x$stack_overflow|        ; 则可以省略
+
+        ...处理...
+
+        LDMEA   fp, {fp, sp, pc}^
+</pre>
+要使它遵从 32-bit 体系，只须简单的省略最后一个指令的‘^’。注意你不能在一个编译的 
+26-bit 
+代码中使用这个代码。实际上，你可以去除它，但这不是我愿意打赌的事情。&nbsp;
+<p>如果你不使用栈，并且你不需要保存任何寄存器，并且你不调用任何东西，则没有必要设置 
+APCS 块(但在调试阶段对跟踪问题仍是有用的)。在这种情况下你可以:
+<pre>my_simple_function
+
+        ...处理...
+
+        MOVS    pc, lr
+</pre>
+(再次，对 32 位 APCS 使用 MOV 而不是 MOVS，但是不要冒险与 26 
+位代码连接)。
+<p>　
+<h2><a name="10">APCS 标准</a></h2>
+总的来说，有多个版本的 APCS (实际上是 16 个)。我们只关心在 
+RISC OS 上可能遇到的。
+<p><b>APCS-A</b><br>
+就是 APCS-Arthur；由早期的 Arthur 
+所定义。它已经被废弃，原因是它有不同的寄存器定义(对于熟练的 
+RISC OS 程序员它是某种异类)。它用于在 USR 模式下运行的 
+Arthur 应用程序。不应该使用它。
+<ul>
+  <li><code>sl = R13, fp = R10, ip = R11, sp = R12, lr = R14, pc = R15。</code></li>
+  <li>PRM (p4-411) 中说“用 <code>r12</code> 作为 <code>sp</code>，而不是在体系上更自然的 
+    <code>r13</code>，是历史性的并先于 Arthur 和 RISC OS 二者。”</li>
+  <li>栈是分段的并可按需要来扩展。</li>
+  <li>26-bit 程序计数器。</li>
+  <li>不在 FP 寄存器中传递浮点实参。</li>
+  <li>不可重入。标志必须被恢复。</li>
+</ul>
+<p><b>APCS-R</b><br>
+就是 APCS-RISC OS。用于 RISC OS 应用程序在 USR 
+模式下进行操作；或在 SVC 模式下的模块/处理程序。
+<ul>
+  <li><code>sl = R10, fp = R11, ip = R12, sp = R13, lr = R14, pc = R15。</code></li>
+  <li>它是唯一的最通用的 APCS 版本。因为所有编译的 C 
+    程序都使用 APCS-R。</li>
+  <li>显式的栈限制检查。</li>
+  <li>26-bit 程序计数器。</li>
+  <li>不在 FP 寄存器中传递浮点实参。</li>
+  <li>不可重入。标志必须被恢复。</li>
+</ul>
+<p><b>APCS-U</b><br>
+就是 APCS-Unix，Acorn 的 RISCiX 使用它。它用于 RISCiX 应用程序(USR 
+模式)或内核(SVC 模式)。
+<ul>
+  <li><code>sl = R10, fp = R11, ip = R12, sp = R13, lr = R14, pc = R15。</code></li>
+  <li>隐式的栈限制检查(使用 sl)。</li>
+  <li>26-bit 程序计数器。</li>
+  <li>不在 FP 寄存器中传递浮点实参。</li>
+  <li>不可重入。标志必须被恢复。</li>
+</ul>
+<p><b>APCS-32</b><br>
+它是 APCS-2(-R 和 -U)的一个扩展，允许 32-bit 
+程序计数器，并且从执行在 USR 
+模式下的一个函数中退出时，允许标志不被恢复。其他事情同于 
+APCS-R。<br>
+Acorn C 版本 5 支持生成 32-bit 代码；在用于广域调试的 32 
+位工具中，它是最完整的开发发行。一个简单的测试是要求你的编译器导出汇编源码(而不是制作目标代码)。你不应该找到:<br>
+<code>MOVS PC, R14</code><br>
+或者<br>
+<code>LDMFD R13!, {Rx-x, PC}<b><i>^</i></b></code>
+<p>　
+<h2><a name="11">对编码有用的东西</a></h2>
+首先要考虑的是该死的 26/32 位问题。 
+简单的说，不转弯抹角绝对没有方法为两个版本的 APCS 
+汇编同一个通用代码。但是幸运的这不是问题。APCS 
+标准不会突然改变。RISC OS 的 32 
+位版本也不会立刻变异。所以利用这些，我们可以设计一种支持两种版本的方案。这将远远超出 
+APCS，对于 RISC OS 的 32 位版本你需要使用 MSR 
+来处理状态和模式位，而不是使用 TEQP。许多现存的 API 
+实际上不需要保护标志位。所以在我们的 32 
+版本中可以通过把 <code>MOVS PC,...</code> 变成 <code>MOV PC,...</code>，和把 
+<code>LDM {...}^</code> 变成 <code>LDM {...}</code>，并重新建造来解决。objasm 
+汇编器(v3.00 和以后)有一个 <code>{CONFIG}</code> 变量可以是 <code>26</code> 
+或 <code>32</code>。可以使用它建造宏...
+<pre>my_function_name
+        MOV     ip, sp
+        STMFD   sp!, {fp, ip, lr, pc}
+        SUB     fp, ip, #4
+
+        ...处理...
+
+        [ {CONFIG} = 26
+          LDMEA   fp, {fp, sp, pc}^
+        |
+          LDMEA   fp, {fp, sp, pc}
+        ]
+</pre>
+我未测试这个代码。它(或类似的东西)好象是保持与两个版本的 
+APCS 相兼容的最佳方式，也是对 RISC OS 的不同版本，26 
+位版本和将来的 32 位版本的最佳方法。
+<p>测试是否处于 32 位? 
+如果你要求你的代码有适应性，有一个最简单的方法来确定处理器的 
+PC 状态：
+<pre>   TEQ     PC, PC     ; 对于 32 位是 EQ；对于 26 位是 NE</pre>
+<p>使用它你可以确定:</p>
+<ul>
+  <li>26 位 PC，可能是 APCS-R 或 APCS-32。
+  <li>32 位 PC，不能 APCS-R。所有 26-bit 代码(TEQP 等)面临着失败!
+</ul>
+<p>　</p>
+<hr size="3">
+<a href="index.html">回到目录页</a>
+
+</body>
+
+</html>

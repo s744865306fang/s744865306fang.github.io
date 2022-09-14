@@ -1,0 +1,113 @@
+<!doctype html public "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+<title>寄存器和处理器模式</title>
+</head>
+
+<body TopMargin=0 bgcolor="#f0f0f0" text="#000000" link="#0022dd" vlink="#002288">
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+    
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="100"></td>
+    <td>
+      <h1 align="center"><font color="#202020">寄存器和处理器模式</font></h1>
+    </td>
+    <td align="center" width="100"></td>
+</table>
+<p>　
+<p>ARM 
+处理器有二十七个寄存器，其中一些是在一定条件下使用的，所以一次只能使用十六个...
+<ul>
+  <li>寄存器 0 到寄存器 7 
+    是通用寄存器并可以用做任何目的。不象 80x86 
+    处理器那样要求特定寄存器被用做栈访问，或者象 6502 
+    那样把数学计算的结果放置到一个累加器中，ARM 
+    处理器在寄存器使用上是高度灵活的。
+</ul>
+<ul>
+  <li>寄存器 8 到 12 是通用寄存器，但是在切换到 FIQ 
+    模式的时候，使用它们的影子(shadow)寄存器。
+</ul>
+<ul>
+  <li>寄存器 13 典型的用做 OS 
+    栈指针，但可被用做一个通用寄存器。这是一个操作系统问题，不是一个处理器问题，所以如果你不使用栈，只要你以后恢复它，你可以在你的代码中自由的占用(corrupt)它。每个处理器模式都有这个寄存器的影子寄存器。
+</ul>
+<ul>
+  <li>寄存器 14 
+    专职持有返回点的地址以便于写子例程。当你执行带连接的分支的时候，把返回地址存储到 
+    R14 中。同样在程序第一次运行的时候，把退出地址保存在 
+    R14 中。R14 的所有实例必须被保存到其他寄存器中(不是实际上有效)或一个栈中。这个寄存器在各个处理器模式下都有影子寄存器。一旦已经保存了连接地址，这个寄存器就可以用做通用寄存器了。
+</ul>
+<ul>
+  <li>寄存器 15 
+    是程序计数器。它除了持有指示程序当前使用的地址的二十六位数之外，还持有处理器的状态。
+</ul>
+<p>为更清晰一些... 提供下列图表:
+<pre>User 模式  SVC 模式   IRQ 模式   FIQ 模式  APCS
+
+R0 ------- R0 ------- R0 ------- R0        a1
+R1 ------- R1 ------- R1 ------- R1        a2
+R2 ------- R2 ------- R2 ------- R2        a3
+R3 ------- R3 ------- R3 ------- R3        a4
+R4 ------- R4 ------- R4 ------- R4        v1
+R5 ------- R5 ------- R5 ------- R5        v2
+R6 ------- R6 ------- R6 ------- R6        v3
+R7 ------- R7 ------- R7 ------- R7        v4
+R8 ------- R8 ------- R8         R8_fiq    v5
+R9 ------- R9 ------- R9         R9_fiq    v6
+R10 ------ R10 ------ R10        R10_fiq   sl
+R11 ------ R11 ------ R11        R11_fiq   fp
+R12 ------ R12 ------ R12        R12_fiq   ip
+R13        R13_svc    R13_irq    R13_fiq   sp
+R14        R14_svc    R14_irq    R14_fiq   lr
+------------- R15 / PC -------------       pc
+</pre>
+最右侧的列是 APCS 代码使用的名字，关于 APCS 的详情参见<a href="apcsintro.html">这里</a>。　
+<p>程序计数器构造如下:
+<pre>  位   31  30  29  28  27  26  25------------2  1  0
+
+       N   Z   C   V   I   F    程 序 计 数 器  S1 S0
+</pre>
+对 R15 的详细解释，请参见 <a href="psr.html">psr.html</a>。
+<p>下面是你想知道的&quot;模式&quot;，比如上面提及的&quot;FIQ&quot;模式。
+<ul>
+  <li>用户模式，运行应用程序的普通模式。限制你的内存访问并且你不能直接读取硬件设备。
+</ul>
+<ul>
+  <li>超级用户模式(SVC 模式)，主要用于 SWI(软件中断)和 OS(操作系统)。这个模式有额外的<b>特权</b>，允许你进一步控制计算机。例如，你必须进入超级用户模式来读取一个插件(podule)。这不能在用户模式下完成。
+</ul>
+<ul>
+  <li>中断模式(IRQ 模式)，用来处理发起中断的外设。这个模式也是有特权的。导致 
+    IRQ 的设备有键盘、 VSync (在发生屏幕刷新的时候)、IOC 
+    定时器、串行口、硬盘、软盘、等等...
+</ul>
+<ul>
+  <li>快速中断模式(FIQ 模式)，用来处理发起快速中断的外设。这个模式是有特权的。导致 
+    FIQ 的设备有处理数据的软盘，串行端口(比如在 82C71x 
+    机器上的 A5000) 和 Econet。
+</ul>
+IRQ 和 FIQ 之间的区别是对于 FIQ 
+你必须尽快处理你事情并离开这个模式。IRQ 可以被 FIQ 
+所中断但 IRQ 不能中断 FIQ。为了使 FIQ 
+更快，所以有更多的影子寄存器。FIQ 不能调用 SWI。FIQ 
+还必须禁用中断。如果一个 FIQ 
+例程必须重新启用中断，则它太慢了并应该是 IRQ 而不是 FIQ。 
+Phew!
+<p>关于如果变更处理器的模式的详情请参照 <a href="psr.html">psr.html</a>。
+<p>　
+<hr size="3">
+<a href="index.html">回到目录页</a>
+
+</body>
+
+</html>

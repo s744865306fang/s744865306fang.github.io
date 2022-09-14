@@ -1,0 +1,280 @@
+<!doctype html public "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta http-equiv="Content-Language" content="zh-cn">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+<title>指令集快速查找</title>
+</head>
+
+<body TopMargin=0 bgcolor="#f0f0f0" text="#000000" link="#0022dd" vlink="#002288">
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+    
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="100"></td>
+    <td>
+      <h1 align="center"><font color="#202020">指令集</font></h1>
+      <h3 align="center"><font color="#800080">(快速查找)</font></h3>
+    </td>
+    <td align="center" width="100"></td>
+</table>
+<p>在本文档的汇编语法中，用 # 前缀表示立即值，用 &amp; 
+表示十六进制值，用 % 表示二进制值，用 {花括号} 
+表示指令中可选的设置字段或位。下面表格中<b>粗体</b>的指令是核心 
+ARM 
+指令，其他的是值得包含的位和片段、移位选项和汇编器助记码(mnemonic)... 
+还列出了协处理器指令。但是用于 RISC OS 机器的 ARM 
+处理器不支持协处理器，只在一个可访问的芯片中提供了实际上的协处理器功能。其中包括设置 
+ARM、cache、MMU 的设施，等...
+<p>　
+<table border="0" width="100%">
+  <tr>
+    <td><b><u>指令</u></b>
+    <td><b><u>意义</u></b>
+    <td><b><u>最早的 CPU / 注释</u></b>
+  <tr>
+    <td><a href="mov.html#adc"><b>ADC</b></a>
+    <td>带进位的加法
+    <td>-&nbsp;
+  <tr>
+    <td><a href="mov.html#add"><b>ADD</b></a>
+    <td>加法
+    <td>-&nbsp;
+  <tr>
+    <td><a href="mov.html#and"><b>AND</b></a>
+    <td>逻辑与
+    <td>-&nbsp;
+  <tr>
+    <td><a href="shift.html#asl">ASL</a>
+    <td>算术左移
+    <td>这是一个选项，不是指令&nbsp;
+  <tr>
+    <td><a href="shift.html#asr">ASR</a>
+    <td>算术右移
+    <td>这是一个选项，不是指令&nbsp;
+  <tr>
+    <td><a href="bl.html#b"><b>B</b></a>
+    <td>分支
+    <td>-&nbsp;
+  <tr>
+    <td><a href="mov.html#bic"><b>BIC</b></a>
+    <td>位清除
+    <td>-&nbsp;
+  <tr>
+    <td><a href="bl.html#bl"><b>BL</b></a>
+    <td>带连接的分支
+    <td>-&nbsp;
+  <tr>
+    <td>BX
+    <td>分支到 Thumb 代码
+    <td>StrongARM SA1110&nbsp;?
+  <tr>
+    <td><a href="ARMinstrs.html#CoproOp">CDP</a>
+    <td>协处理器数据操作
+    <td>-&nbsp;
+  <tr>
+    <td><a href="cmp.html#cmn"><b>CMN</b></a>
+    <td>比较取负的值
+    <td>-&nbsp;
+  <tr>
+    <td><a href="cmp.html#cmp"><b>CMP</b></a>
+    <td>比较值
+    <td>-&nbsp;
+  <tr>
+    <td><a href="mov.html#eor"><b>EOR</b></a>
+    <td>异或两个值
+    <td>-&nbsp;
+  <tr>
+    <td><a href="ARMinstrs.html#CoproTrans">LDC</a>
+    <td>装载内存到协处理器
+    <td>-&nbsp;
+  <tr>
+    <td><a href="str.html#ldm"><b>LDM</b></a>
+    <td>装载多个寄存器
+    <td>-&nbsp;
+  <tr>
+    <td><a href="str.html#ldr"><b>LDR</b></a>
+    <td>装载寄存器
+    <td>-&nbsp;
+  <tr>
+    <td><a href="str.html#ldr"><b>LDRB</b></a>
+    <td>装载字节到寄存器
+    <td>-&nbsp;
+  <tr>
+    <td><b>LDRH</b>
+    <td>装载半字到寄存器
+    <td>StrongARM
+  <tr>
+    <td><b>LDRSB</b>
+    <td>装载有符号字节到寄存器
+    <td>StrongARM&nbsp;
+  <tr>
+    <td><b>LDRSH</b>
+    <td>装载有符号半字到寄存器
+    <td>StrongARM &nbsp;
+  <tr>
+    <td><a href="shift.html#lsl">LSL</a>
+    <td>逻辑左移
+    <td>这是一个选项，不是指令
+  <tr>
+    <td><a href="shift.html#lsr">LSR</a>
+    <td>逻辑右移
+    <td>这是一个选项，不是指令
+  <tr>
+    <td><a href="ARMinstrs.html#CoproTrans">MCR</a>
+    <td>协处理器寄存器传送
+    <td>-
+  <tr>
+    <td><a href="mul.html#mla"><b>MLA</b></a>
+    <td>带累加的乘法
+    <td>-&nbsp;
+  <tr>
+    <td><a href="mov.html#mov"><b>MOV</b></a>
+    <td>传送值/寄存器到一个寄存器
+    <td>-&nbsp;
+  <tr>
+    <td><a href="ARMinstrs.html#CoproTrans">MRC</a>
+    <td>协处理器寄存器传送
+    <td>-&nbsp;
+  <tr>
+    <td><a href="psr.html#mrs"><b>MRS</b></a>
+    <td>传送状态标志到一个寄存器
+    <td>ARM 6&nbsp;
+  <tr>
+    <td><a href="psr.html#msr"><b>MSR</b></a>
+    <td>传送一个寄存器的内容到状态标志
+    <td>ARM 6&nbsp;
+  <tr>
+    <td><a href="mul.html#binop"><b>MUL</b></a>
+    <td>乘法
+    <td>-&nbsp;
+  <tr>
+    <td><a href="mov.html#mvn"><b>MVN</b></a>
+    <td>传送取负的(值)
+    <td>-&nbsp;
+  <tr>
+    <td><a href="mov.html#orr"><b>ORR</b></a>
+    <td>逻辑或
+    <td>-&nbsp;
+  <tr>
+    <td><a href="shift.html#ror">ROR</a>
+    <td>循环右移
+    <td>这是一个选项，不是指令 &nbsp;
+  <tr>
+    <td><a href="shift.html#rrx">RRX</a>
+    <td>带扩展的循环右移
+    <td>这是一个选项，不是指令 &nbsp;
+  <tr>
+    <td><a href="mov.html#rsb"><b>RSB</b></a>
+    <td>反向减法
+    <td>- &nbsp;
+  <tr>
+    <td><a href="mov.html#rsc"><b>RSC</b></a>
+    <td>带借位的反向减法
+    <td>- &nbsp;
+  <tr>
+    <td><a href="mov.html#sbc"><b>SBC</b></a>
+    <td>带借位的减法
+    <td>- &nbsp;
+  <tr>
+    <td><b><a href="ARMinstrs.html#Long">SMLAL</a></b>
+    <td>带累加的有符号长(64 位)乘法
+    <td>StrongARM &nbsp;
+  <tr>
+    <td><b><a href="ARMinstrs.html#Long">SMULL</a></b>
+    <td>有符号长(64 位)乘法
+    <td>StrongARM &nbsp;
+  <tr>
+    <td><a href="ARMinstrs.html#CoproTrans">STC</a>
+    <td>协处理器数据传送
+    <td>- &nbsp;
+  <tr>
+    <td><a href="str.html#stm"><b>STM</b></a>
+    <td>存储多个寄存器
+    <td>- &nbsp;
+  <tr>
+    <td><a href="str.html#str"><b>STR</b></a>
+    <td>存储一个寄存器
+    <td>- &nbsp;
+  <tr>
+    <td><a href="str.html#str"><b>STRB</b></a>
+    <td>存储一个字节(从一个寄存器)
+    <td>- &nbsp;
+  <tr>
+    <td><b>STRH</b>
+    <td>存储一个半字(从一个寄存器)
+    <td>StrongARM &nbsp;
+  <tr>
+    <td><b>STRSB</b>
+    <td>存储一个有符号字节(从一个寄存器)
+    <td>StrongARM &nbsp;
+  <tr>
+    <td><b>STRSH</b>
+    <td>存储一个有符号半字(从一个寄存器)
+    <td>StrongARM &nbsp;
+  <tr>
+    <td><a href="mov.html#sub"><b>SUB</b></a>
+    <td>减法
+    <td>- &nbsp;
+  <tr>
+    <td><a href="swi.html#swi"><b>SWI</b></a>
+    <td>导致一个软件中断
+    <td>- &nbsp;
+  <tr>
+    <td><a href="str.html#swp"><b>SWP</b></a>
+    <td>交换寄存器与内存
+    <td>ARM 3 &nbsp;
+  <tr>
+    <td><a href="cmp.html#teq"><b>TEQ</b></a>
+    <td>测试等价(概念上的 EOR)
+    <td>- &nbsp;
+  <tr>
+    <td><a href="cmp.html#tst"><b>TST</b></a>
+    <td>测试并屏蔽(概念上的 AND)
+    <td>- &nbsp;
+  <tr>
+    <td><b><a href="ARMinstrs.html#Long">UMLAL</a></b>
+    <td>带累加的无符号长(64 位)乘法
+    <td>StrongARM &nbsp;
+  <tr>
+    <td><b><a href="ARMinstrs.html#Long">UMULL</a></b>
+    <td>无符号长(64 位)乘法
+    <td>StrongARM &nbsp;
+</table>
+<h3>RISC OS 的 BASIC 汇编器的伪指令</h3>
+<table border="0" width="507">
+  <tr>
+    <td width="70"><a href="pseudo.html#adr">ADR</a>
+    <td width="423">得到目标的地址(4K 之内)
+  <tr>
+    <td width="70"><a href="pseudo.html#adrl">ADRL</a>
+    <td width="423">得到目标的地址(超过 4K)
+  <tr>
+    <td width="70"><a href="pseudo.html#align">ALIGN</a>
+    <td width="423">把程序计数器设置到下个字的边界
+  <tr>
+    <td width="70"><a href="file:///C:/mhss/ARM/pseudo.html#dcx">DCx</a>
+    <td width="423">定义字节(B)、半字(W)、字(D)、字符串(S)、或浮点(F)值
+  <tr>
+    <td width="70"><a href="pseudo.html#equx">EQUx</a>
+    <td width="423">定义字节(B)、半字(W)、字(D)、字符串(S)、或浮点(F)值
+  <tr>
+    <td width="70"><a href="pseudo.html#opt">OPT</a>
+    <td width="423">选择汇编选项
+</table>
+<h3><a href="fpops.html">IEEE 浮点指令</a></h3>
+<p>　
+<hr size="3">
+<a href="index.html">回到目录页</a>
+
+
+</body>
+
+</html>

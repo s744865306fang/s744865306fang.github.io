@@ -1,0 +1,105 @@
+<!doctype html public "-//W3C//DTD HTML 3.2//EN">
+
+<html>
+
+<head>
+<title>分支指令</title>
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<link rel="stylesheet" type="text/css" href="../global.css">
+</head>
+
+<body TopMargin=0 bgcolor="#f0f0f0" text="#000000" link="#0022dd" vlink="#002288">
+<!-- embest help header -->
+<img src="../arm.gif" width=778 height=73 border=0>
+<!-- embest help header -->
+    
+<table border="0" width="100%">
+  <tr>
+    <td align="center" width="100"></td>
+    <td>
+      <h1 align="center"><font color="#202020">分支指令</font></h1>
+    </td>
+    <td align="center" width="100"></td>
+</table>
+<ul>
+  <li><a href="#b">B</a></li>
+  <li><a href="#bl">BL</a></li>
+</ul>
+<p><a href="ARMinstrs.html#Branch">指令格式</a>
+<p><a name="b"></a></p>
+<h2>B : 分支</h2>
+<p>(<font color="#0000FF">B</font>ranch)</p>
+<pre>
+  B{条件}  &lt;地址&gt;
+</pre>
+<code>B</code> 是最简单的分支。一旦遇到一个 <code>B</code> 
+指令，ARM 
+处理器将立即跳转到给定的地址，从那里继续执行。注意存储在分支指令中的实际的值是相对当前的 
+R15 
+的值的一个偏移量；而不是一个绝对地址。它的值由汇编器来计算，它是 
+24 位有符号数，左移两位后有符号扩展为 32 
+位，表示的有效偏移为 26 位(+/- 32 M)。
+<p>在其他处理器上，你可能经常见到这样的指令:
+<pre>
+  OPT 1
+  LDA &amp;70
+  CMP #0
+  BEQ Zero
+  STA &amp;72
+ .Zero RTS
+</pre>
+(取自 Acorn Electron User Guide issue 1 page 213)
+<p>在 ARM 处理器上，它们将变成下面这些东西:
+<pre>
+  OPT     1
+  ADR     R1, #&amp;70
+  LDR     R0, [R1]
+  CMP     #0
+  BEQ     Zero
+  STR     R0, [R1, #2]
+ .Zero
+  MOV     PC, R14
+</pre>
+这不是一个很好的例子，但你可以构想如何更好的去条件执行而不是分支。另一方面，如果你有大段的代码或者你的代码使用状态标志，那么你可以使用条件执行来实现各类分支: 
+这样一个单一的简单条件执行指令可以替代在其他处理器中存在的所有这些分支和跳转指令。
+<pre>
+  OPT     1
+  ADR     R1, #&amp;70
+  LDR     R0, [R1]
+  CMP     R0, #0
+  STRNE   R0, [R1, #2]
+  MOV     PC, R14
+</pre>
+<p>&nbsp;<a name="bl"></a>
+<h2>BL : 带连接的分支</h2>
+<p>(<font color="#0000FF">B</font>ranch with <font color="#0000FF">L</font>ink)</p>
+<pre>
+  BL{条件}  &lt;地址&gt;
+</pre>
+<code>BL</code> 是另一个分支指令。就在分支之前，在寄存器 14 
+中装载上 R15 的内容。你可以重新装载 R14 到 R15 
+中来返回到在这个分支之后的那个指令，它是子例程的一个基本但强力的实现。它的作用在屏幕装载器 
+2 (例子 4)中得以很好的展现...
+<pre>
+    .load_new_format
+      BL     switch_screen_mode
+      BL     get_screen_info
+      BL     load_palette
+
+    .new_loop
+      MOV    R1, R5
+      BL     read_byte
+      CMP    R0, #255
+      BLEQ   read_loop
+      STRB   R0, [R2, #1]!
+</pre>
+...在这里我们见到在装载器循环之前调用了三个子例程。接着，一旦满足了条件执行就在循环中调用了 
+<i>read_byte</i> 子例程。
+<p>　
+<hr size="3">
+<a href="index.html">回到目录页</a>
+
+</body>
+
+</html>
