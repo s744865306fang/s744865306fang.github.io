@@ -84,7 +84,7 @@
         // 每次循环中生成一个随机数rand，再生成一个随机半径radius
 
         for (let i = 0; i < 100000; i++) {
-            let r = 5, R = 20;
+            let r = 10, R = 40;
             let rand = Math.pow(Math.random(), 1.5);
             let radius = Math.sqrt(R * R * rand + (1 - rand) * r * r);
             // 使用new THREE.Vector3().setFromCylindricalCoords()生成一个点。
