@@ -30,7 +30,7 @@
         // 创建相机
         let camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 1, 1000)
         // 设置相机位置
-        camera.position.set(5, 5, 25)
+        camera.position.set(2, 4, 21)
 
         // 创建渲染器
         let renderer = new THREE.WebGLRenderer()
@@ -101,7 +101,7 @@
         // 创建点材质
         let m = new THREE.PointsMaterial({
             // 表示点的大小
-            size: 0.125,
+            size: 0.0125,
             // 设置材质为透明
             transparent: true,
             // 表示禁用深度测试，使点可以叠加
