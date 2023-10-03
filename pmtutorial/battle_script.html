@@ -68,10 +68,49 @@
     点此获取
 </button>
 </a>
+<h2>
+    <font color="red">
+        别催我更新，这个教程我是一个个翻源码写的，另外我的教程部分指令名字和工具内不同，请谅解(反正也没几个人会编译工具)
+    </font>
+</h2>
 
 <div>
     <h4 id="attackcanceler">0x0    attackcanceler</h4>
     <p>作用：检查守住等技能是否起效，还检查宝可梦当前状态(睡眠等)，并计算是否为宝可梦解除这些状态，改版者应当在所有手搓的技能效果开头加上这一条命令</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="accuracycheck">0x1    accuracycheck</h4>
+    <p>作用：检查技能有没有命中，如果没有，执行另一个战斗脚本，绿宝石通常会用0x082d8a5e，火红是0x081d695e</p>
+    <p>参数：</p>
+    <p>1) 脚本地址[4字节]</p>
+    <p>2) 技能[2字节]，写为0是当前所用技能，建议写0</p>
+    <p>&#xa0;</p>
+    <h4 id="attackstring">0x2    attackstring</h4>
+    <p>作用：输出使用技能的对话</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="ppreduce">0x3    ppreduce</h4>
+    <p>作用：减少1点PP值</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="critcalc">0x4    critcalc</h4>
+    <p>作用：计算是否命中要害来改变伤害</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="damagecalc">0x5    damagecalc</h4>
+    <p>作用：计算伤害</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="typecalc">0x6    typecalc</h4>
+    <p>作用：计算属性克制</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="adjustnormaldamage">0x7    adjustnormaldamage</h4>
+    <p>作用：根据计算结果调整技能伤害</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="adjustnormaldamage2">0x1    adjustnormaldamage2</h4>
+    <p>作用：和adjustnormaldamage一样，但是不检测使用技能的效果是否是101(十进制)</p>
     <p>参数：无</p>
     <p>&#xa0;</p>
 </div>
