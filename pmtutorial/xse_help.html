@@ -1652,28 +1652,28 @@
 				<td>额外的地址2</td>
 			</tr>
 			<tr>
-				<td>0x0 普通</td>
+				<td>0x0 单精灵战斗</td>
 				<td>参数4</td>
 				<td>参数5</td>
 				<td>无</td>
 				<td>无</td>
 			</tr>
 			<tr>
-				<td>0x1 获胜后运行额外地址1的脚本</td>
-				<td>参数4</td>
-				<td>参数5</td>
-				<td>脚本地址</td>
-				<td>无</td>
-			</tr>
-			<tr>
-				<td>0x2 获胜后运行额外地址2的脚本</td>
+				<td>0x1 获胜后运行脚本的单精灵战斗(无音乐)</td>
 				<td>参数4</td>
 				<td>参数5</td>
 				<td>脚本地址</td>
 				<td>无</td>
 			</tr>
 			<tr>
-				<td>0x3 继续调用</td>
+				<td>0x2 获胜后运行脚本的单精灵战斗(有音乐)</td>
+				<td>参数4</td>
+				<td>参数5</td>
+				<td>脚本地址</td>
+				<td>无</td>
+			</tr>
+			<tr>
+				<td>0x3 无介绍文本的单精灵战斗</td>
 				<td>参数4</td>
 				<td>无</td>
 				<td>无</td>
@@ -1694,25 +1694,25 @@
 				<td>无</td>
 			</tr>
 			<tr>
-				<td>0x6 特殊的双精灵战斗</td>
+				<td>0x6 运行脚本的双精灵战斗</td>
 				<td>参数4</td>
 				<td>参数5</td>
 				<td>精灵不够的文本</td>
-				<td>未知</td>
+				<td>脚本地址</td>
 			</tr>
 			<tr>
-				<td>0x7 特殊的复赛</td>
+				<td>0x7 双精灵战斗的复赛</td>
 				<td>参数4</td>
 				<td>参数5</td>
 				<td>无</td>
 				<td>无</td>
 			</tr>
 			<tr>
-				<td>0x8 特殊的双精灵战斗</td>
+				<td>0x8 运行脚本的双精灵战斗(无音乐)</td>
 				<td>参数4</td>
 				<td>参数5</td>
 				<td>精灵不够的文本</td>
-				<td>未知</td>
+				<td>脚本地址</td>
 			</tr>
 			<tr>
 				<td>0x9 捕捉精灵教程</td>
@@ -1722,7 +1722,28 @@
 				<td>无</td>
 			</tr>
 			<tr>
-				<td>其它</td>
+				<td>0xA 主动对话不触发的单精灵战斗(无音乐)</td>
+				<td>参数4</td>
+				<td>参数5</td>
+				<td>无</td>
+				<td>无</td>
+			</tr>
+			<tr>
+				<td>0xB 同0xA，但看源码有些许区别</td>
+				<td>参数4</td>
+				<td>参数5</td>
+				<td>无</td>
+				<td>无</td>
+			</tr>
+			<tr>
+				<td>0xC 和无精灵的登山大叔一直对战</td>
+				<td>参数4</td>
+				<td>参数5</td>
+				<td>无</td>
+				<td>无</td>
+			</tr>
+			<tr>
+				<td>其他 单精灵战斗</td>
 				<td>参数4</td>
 				<td>参数5</td>
 				<td>无</td>
@@ -2572,108 +2593,108 @@
 			</tr>
 			<tr>
 				<td>0x2</td>
-				<td>未知</td>
-				<td>未知</td>
+				<td>开始联机(要设定一些东西不然卡死)</td>
+				<td>开始联机(要设定一些东西不然卡死)</td>
 			</tr>
 			<tr>
 				<td>0x3</td>
 				<td>传送至最近抵达的出口</td>
-				<td>未知</td>
+				<td>传送至最近抵达的出口</td>
 			</tr>
 			<tr>
 				<td>0x4</td>
 				<td>清理联机室状态</td>
-				<td>未知</td>
+				<td>清理联机室状态</td>
 			</tr>
 			<tr>
 				<td>0x5</td>
 				<td>退出联机室</td>
-				<td>未知</td>
+				<td>退出联机室</td>
 			</tr>
 			<tr>
 				<td>0x6</td>
 				<td>设置玩家秘密基地</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x7</td>
 				<td>检查玩家是否有秘密基地</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x8</td>
 				<td>进入秘密基地</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x9</td>
 				<td>清除并离开秘密基地</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0xA</td>
 				<td>走出秘密基地</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0xB</td>
 				<td>检查是否是另一个玩家的秘密基地</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0xC</td>
 				<td>将另一个玩家的秘密基地，写入到存档</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0xD</td>
 				<td>登记另一个玩家的秘密基地</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0xE</td>
 				<td>显示秘密基地装饰品菜单</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0xF</td>
 				<td>显示秘密基本注册表菜单</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x10</td>
 				<td>准备秘密基地战斗flag</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x11</td>
 				<td>获取秘密基地所有者互动状态</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x12</td>
 				<td>初始化秘密基地装饰品</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x13</td>
-				<td>未知</td>
-				<td>未知</td>
+				<td>设置装饰品</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x14</td>
-				<td>未知</td>
-				<td>未知</td>
+				<td>从flag中获取物品事件编号</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x15</td>
 				<td>在玩家面前获得秘密基地类型</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x16</td>
 				<td>设置秘密基地所有者Id</td>
-				<td>未知</td>
+				<td>无</td>
 			</tr>
 			<tr>
 				<td>0x17</td>
