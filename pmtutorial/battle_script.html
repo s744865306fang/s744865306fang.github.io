@@ -113,4 +113,59 @@
     <p>作用：和adjustnormaldamage一样，但是不检测使用技能的效果是否是101(十进制)</p>
     <p>参数：无</p>
     <p>&#xa0;</p>
+    <h4 id="attackanimation">0x9    attackanimation</h4>
+    <p>作用：播放技能动画</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="waitanimation">0xA    waitanimation</h4>
+    <p>作用：等待技能动画结束</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="healthbarupdate">0xB    healthbarupdate</h4>
+    <p>作用：更新血量框显示数据，目标0表示我方单打或双打第一只，1表示我方双打第二只，2表示敌方单打或双打第一只，3表示敌方双打第二只</p>
+    <p>参数：</p>
+    <p>1) 目标[1字节]</p>
+    <p>&#xa0;</p>
+    <h4 id="datahpupdate">0xC    datahpupdate</h4>
+    <p>作用：更新内存中血量数据</p>
+    <p>参数：</p>
+    <p>1) 目标[1字节]</p>
+    <p>&#xa0;</p>
+    <h4 id="critmessage">0xD    critmessage</h4>
+    <p>作用：输出命中要害文本</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="effectivenesssound">0xE    effectivenesssound</h4>
+    <p>作用：播放效果拨群的音乐</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="resultmessage">0xF    resultmessage</h4>
+    <p>作用：显示技能使用后的文本(效果拨群，一击必杀等)</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="printstring">0x10    printstring</h4>
+    <p>作用：输出文本(战斗脚本中所有文本都是列成表格，有自己编号的，如果需要添加文本，需要手动扩容表格)</p>
+    <p>参数：</p>
+    <p>1) 文本编号[2字节]</p>
+    <p>&#xa0;</p>
+    <h4 id="printselectionstring">0x11    printselectionstring</h4>
+    <p>作用：输出文本(对话框不一样)</p>
+    <p>参数：</p>
+    <p>1) 文本编号[2字节]</p>
+    <p>&#xa0;</p>
+    <h4 id="waitmessage">0x12    waitmessage</h4>
+    <p>作用：等待对话结束</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
+    <h4 id="printfromtable">0x13    printfromtable</h4>
+    <p>作用：从给定的地址中获取文本编号来输出文本</p>
+    <p>参数：</p>
+    <p>1) 地址[4字节]
+    <p>&#xa0;</p>
+    <h4 id="printselectionstringfromtable">0x14    printselectionstringfromtable</h4>
+    <p>作用：从给定的地址中获取文本编号来输出文本(对话框不同)</p>
+    <p>参数：</p>
+    <p>1) 地址[4字节]
+    <p>&#xa0;</p>
+    
 </div>
