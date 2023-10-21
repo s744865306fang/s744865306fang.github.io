@@ -51,8 +51,36 @@
 			background-color: #FCF8F2;
 		}
 	</style>
+
+	<script>
+        function searchAndScroll() {
+            var searchText = document.getElementById('searchText').value;
+            var content = document.getElementById('content').innerHTML;
+            var index = content.indexOf(searchText);
+
+            if (index !== -1) {
+                window.scrollTo(0, getOffsetTop(content, index));
+            } else {
+                alert('未找到匹配的文本');
+            }
+        }
+
+        function getOffsetTop(content, index) {
+            var tempDiv = document.createElement('div');
+            tempDiv.style.visibility = "hidden"; 
+            tempDiv.innerHTML = content.substring(0, index);
+            document.body.appendChild(tempDiv);
+            var offsetTop = tempDiv.offsetHeight;
+            document.body.removeChild(tempDiv);
+            return offsetTop;
+        }
+    </script>
 </head>
 
+<input style="padding: 50px 80px;font-size: 20px;position: fixed;top: 0" type="text" id="searchText" placeholder="请输入要查找的文本">
+<button style="padding: 50px 50px;font-size: 20px;position: fixed;top: 0;left: 400px" onclick="searchAndScroll()">搜索并跳转</button>
+
+<br><br><br><br><br><br><br>
 <h2>
     <font color="blue">
         想要手搓一个技能效果，需要使用战斗脚本，以下就是战斗脚本的教程
@@ -74,7 +102,7 @@
     </font>
 </h2>
 
-<div>
+<div id="content">
     <h4 id="attackcanceler">0x0    attackcanceler</h4>
     <p>作用：检查守住等技能是否起效，还检查宝可梦当前状态(睡眠等)，并计算是否为宝可梦解除这些状态，改版者应当在所有手搓的技能效果开头加上这一条命令</p>
     <p>参数：无</p>
@@ -167,5 +195,8 @@
     <p>参数：</p>
     <p>1) 地址[4字节]
     <p>&#xa0;</p>
-    
+    <h4 id="seteffectwithchance">0x15    seteffectwithchance</h4>
+    <p>作用：</p>
+    <p>参数：无</p>
+    <p>&#xa0;</p>
 </div>

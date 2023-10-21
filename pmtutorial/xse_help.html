@@ -53,10 +53,38 @@
 			background-color: #FCF8F2;
 		}
 	</style>
+	
+	<script>
+        function searchAndScroll() {
+            var searchText = document.getElementById('searchText').value;
+            var content = document.getElementById('content').innerHTML;
+            var index = content.indexOf(searchText);
+
+            if (index !== -1) {
+                window.scrollTo(0, getOffsetTop(content, index));
+            } else {
+                alert('未找到匹配的文本');
+            }
+        }
+
+        function getOffsetTop(content, index) {
+            var tempDiv = document.createElement('div');
+            tempDiv.style.visibility = "hidden"; 
+            tempDiv.innerHTML = content.substring(0, index);
+            document.body.appendChild(tempDiv);
+            var offsetTop = tempDiv.offsetHeight;
+            document.body.removeChild(tempDiv);
+            return offsetTop;
+        }
+    </script>
 </head>
 
+<input style="padding: 50px 80px;font-size: 20px;position: fixed;top: 0" type="text" id="searchText" placeholder="请输入要查找的文本">
+<button style="padding: 50px 50px;font-size: 20px;position: fixed;top: 0;left: 400px" onclick="searchAndScroll()">搜索并跳转</button>
+<br><br><br><br><br><br><br>
+
 <body>
-	<div>
+	<div id="content">
 		<title>XSE脚本指令</title>
 		<h2>前言</h2>
 		<p>发现悠然的XSE脚本指令不完善，所以自己修改了一份
