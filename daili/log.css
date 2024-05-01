@@ -2,8 +2,11 @@ p {
     font-size:50px;
 }
 
-button {
-    font-size:50px;
+.container {
     display:flex;
     justify-content:center;
+}
+
+button {
+    font-size:50px;
 }
