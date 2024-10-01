@@ -17,6 +17,7 @@
             align-items: center;
             height: 90vh;
             text-align: center;
+            font-size:30px;
         }
 
         body {
@@ -255,13 +256,23 @@
         pointerX = null;
         pointerY = null;
     }
+    
+    var birthDate = new Date('2007-01-02');
+    function calculateDays() {
+        var now = new Date();
+        var diff = now - birthDate;
+        var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        document.getElementById('days').textContent = days;
+    }
+    window.onload = function() {
+        calculateDays();
+    };
+    
 </script>
 
 <div class="container">
-    <p style="font-size: 30px"><font color="violet">莉莉宝宝生日快乐</p></font>
-    <a href="/p2.html">
-    <input type="button" style="width: 30px; height: 30px; border-radius: 50%;border: none;background-color: transparent;"></input>
-    </a>
+    <p><font color="violet">亲爱的莉莉，你已来到这个世界<span id="days"></span><span>天</span></p>
+    <input type="button" style="width: 30px; height: 30px; border-radius: 50%;border: none;backgroundcolor: transparent;cursor: pointer;"></input></font>
 </div>
 
 </html>
