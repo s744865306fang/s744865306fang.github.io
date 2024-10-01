@@ -19,19 +19,6 @@
             text-align: center;
             font-size:30px;
         }
-        
-        .bt {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            background-color: transparent;
-            cursor: pointer;
-            background-image: url("button.jpg");
-            background-size: cover;
-            background-position: center;
-            outline: none;
-        }
 
         body {
             width: 100%;
@@ -280,17 +267,13 @@
     window.onload = function() {
         calculateDays();
     };
-    function jumptonext(){
-        window.location.href="p2.html";
-    }
-    
+    setTimeout(function() {
+            window.location.href = "p2.html";
+    }, 5000);
 </script>
 
 <div class="container">
     <p><font color="violet">♥亲爱的莉莉，你已来到这个世界<span id="days"></span><span>天</span></p>
-    <a href="p2.html" target="_blank">
-    <button class="bt" onclick=javascript:jumptonext()></button></font>
-    </a>
 </div>
 
 </html>
