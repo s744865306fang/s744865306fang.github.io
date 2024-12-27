@@ -260,8 +260,7 @@
     var birthDate = new Date('2006-12-29');
     function calculateDays() {
         var now = new Date();
-        //var diff = now - birthDate;
-        var diff = 0;
+        var diff = now - birthDate;
         var days = Math.floor(diff / (1000 * 60 * 60 * 24));
         document.getElementById('days').textContent = days;
     }
