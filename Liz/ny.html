@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新年祝福 | To 栗子</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #e8f4ff 0%, #c2d9f0 100%);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(66, 133, 193, 0.15);
+            overflow: hidden;
+            position: relative;
+            padding: 30px;
+            min-height: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background-color: rgba(255, 215, 0, 0.7);
+            border-radius: 50%;
+            animation: twinkle 4s infinite alternate;
+        }
+        
+        .star:nth-child(1) { width: 4px; height: 4px; top: 15%; left: 10%; animation-delay: 0.5s; }
+        .star:nth-child(2) { width: 3px; height: 3px; top: 25%; left: 85%; animation-delay: 1s; }
+        .star:nth-child(3) { width: 5px; height: 5px; top: 40%; left: 15%; animation-delay: 1.5s; }
+        .star:nth-child(4) { width: 3px; height: 3px; top: 60%; left: 80%; animation-delay: 2s; }
+        .star:nth-child(5) { width: 4px; height: 4px; top: 75%; left: 20%; animation-delay: 2.5s; }
+        .star:nth-child(6) { width: 3px; height: 3px; top: 85%; left: 70%; animation-delay: 3s; }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .title {
+            font-family: 'Dancing Script', cursive, 'Ma Shan Zheng', cursive;
+            font-size: 4.5rem;
+            color: #2a5c8b;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            line-height: 1;
+            margin-top: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #2a5c8b;
+            font-weight: 300;
+            margin-top: 5px;
+            letter-spacing: 2px;
+        }
+
+        .custom-area {
+            width: 35%;
+            min-height: 120px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-top: 1px solid rgba(128, 0, 128, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .custom-area:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .custom-area:active {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-area h3 {
+            color: #2a5c8b;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .custom-area p {
+            color: #5a7a9c;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .middle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .bubbles {
+            width: 45%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .bubble {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .bubble:hover {
+            transform: scale(1.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bubble:active {
+            transform: scale(1.1);
+        }
+        
+        .bubble:nth-child(1) { animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 40px; height: 40px; animation-delay: 1s; margin-left: 30px; }
+        .bubble:nth-child(3) { width: 50px; height: 50px; animation-delay: 2s; margin-top: 20px; }
+        .bubble:nth-child(4) { width: 35px; height: 35px; animation-delay: 3s; margin-left: 40px; margin-top: -10px;}
+        
+        .bubble:after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .plum-blossom {
+            width: 45%;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .branch {
+            width: 200px;
+            height: 150px;
+            position: relative;
+        }
+        
+        .branch:before {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 6px;
+            background-color: #8B7355;
+            border-radius: 3px;
+            top: 50%;
+            left: 0;
+            transform: rotate(-5deg);
+        }
+        
+        .branch:after {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 5px;
+            background-color: #8B7355;
+            border-radius: 3px;
+            top: 60%;
+            left: 100px;
+            transform: rotate(15deg);
+        }
+        
+        .flower {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #FFD700;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .flower:hover {
+            transform: scale(1.5);
+        }
+        
+        .flower:nth-child(1) { top: 40%; left: 30px; }
+        .flower:nth-child(2) { top: 35%; left: 80px; }
+        .flower:nth-child(3) { top: 50%; left: 120px; }
+        .flower:nth-child(4) { top: 60%; left: 160px; }
+        .flower:nth-child(5) { top: 45%; left: 180px; }
+
+        .footer {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .message-area {
+            width: 100%;
+            min-height: 180px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-top: 1px solid rgba(255, 215, 0, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .message-area:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .message-area:active {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .message-area h3 {
+            color: #2a5c8b;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .message-area h3:before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 20px;
+            background-color: rgba(255, 215, 0, 0.8);
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        
+        .message-content {
+            color: #5a7a9c;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 20px;
+            }
+            
+            .header {
+                flex-direction: column;
+            }
+            
+            .title {
+                font-size: 3.5rem;
+                margin-bottom: 20px;
+            }
+            
+            .custom-area {
+                width: 100%;
+            }
+            
+            .middle {
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 30px;
+            }
+            
+            .bubbles, .plum-blossom {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 30px;
+            }
+            
+            .plum-blossom {
+                justify-content: center;
+            }
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.5), transparent);
+            margin: 25px 0;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 20px;
+            font-style: italic;
+            color: #5a7a9c;
+            font-size: 1rem;
+        }
+
+        .click-effect {
+            animation: clickPulse 0.3s ease;
+        }
+        
+        @keyframes clickPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="bg-pattern">
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+            </div>
+
+            <div class="header">
+                <div>
+                    <h1 class="title">新年快乐</h1>
+                    <div class="subtitle">Happy New Year</div>
+                </div>
+                
+                <div class="custom-area" id="custom-area">
+                    <h3>To 栗子</h3>
+                    <p>新年快乐！愿新的一年带给你无尽的喜悦与美好。</p>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+
+            <div class="middle">
+                <div class="bubbles">
+                    <div class="bubble" id="bubble1"></div>
+                    <div class="bubble" id="bubble2"></div>
+                    <div class="bubble" id="bubble3"></div>
+                    <div class="bubble" id="bubble4"></div>
+                </div>
+                
+                <div class="plum-blossom">
+                    <div class="branch">
+                        <div class="flower" id="flower1"></div>
+                        <div class="flower" id="flower2"></div>
+                        <div class="flower" id="flower3"></div>
+                        <div class="flower" id="flower4"></div>
+                        <div class="flower" id="flower5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="message-area" id="message-area">
+                    <h3>想对你说的话</h3>
+                    <div class="message-content">
+                        <p>新的一年已经到来。</p>
+                        <p>虽未在元旦当天送上这份祝福，但我愿你新的一年里，每一天都充满阳光与温暖，每一刻都洋溢着欢笑与喜悦。愿你的梦想如星光般璀璨，愿你的路途如诗篇般美好。</p>
+                        <p>作为你的好朋友，我珍惜我们之间的每一段回忆，期待未来继续与你分享生活的点点滴滴。新年快乐！</p>
+                    </div>
+                    <div class="signature">—— 方加俊</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const customArea = document.getElementById('custom-area');
+            const messageArea = document.getElementById('message-area');
+            const bubbles = document.querySelectorAll('.bubble');
+            const flowers = document.querySelectorAll('.flower');
+
+            customArea.addEventListener('click', function() {
+                this.classList.add('click-effect');
+                setTimeout(() => {
+                    this.classList.remove('click-effect');
+                }, 300);
+            });
+
+            messageArea.addEventListener('click', function() {
+                this.classList.add('click-effect');
+                setTimeout(() => {
+                    this.classList.remove('click-effect');
+                }, 300);
+            });
+
+            bubbles.forEach(bubble => {
+                bubble.addEventListener('click', function() {
+                    this.classList.add('click-effect');
+                    setTimeout(() => {
+                        this.classList.remove('click-effect');
+                    }, 300);
+                });
+            });
+
+            flowers.forEach(flower => {
+                flower.addEventListener('click', function() {
+                    this.classList.add('click-effect');
+                    setTimeout(() => {
+                        this.classList.remove('click-effect');
+                    }, 300);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
