@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一份真诚的心意</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            line-height: 1.8;
+            color: #333;
+            background-color: #f9f3f3;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 230, 230, 0.4) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 230, 230, 0.3) 0%, transparent 20%);
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+            padding: 40px;
+            border: 1px solid rgba(255, 200, 200, 0.2);
+        }
+        
+        /* 装饰性顶部设计 */
+        .header-decoration {
+            height: 8px;
+            background: linear-gradient(90deg, #ffcfe0, #ffb6c1, #ff9ebb);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        
+        .letter-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .letter-header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.2rem;
+            color: #d46a8c;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .letter-header .subtitle {
+            font-size: 1.1rem;
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        /* 装饰性边框 */
+        .border-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        
+        .border-left, .border-right {
+            position: absolute;
+            width: 30px;
+            height: 100%;
+            top: 0;
+        }
+        
+        .border-left {
+            left: 0;
+            border-left: 1px dashed rgba(212, 106, 140, 0.3);
+        }
+        
+        .border-right {
+            right: 0;
+            border-right: 1px dashed rgba(212, 106, 140, 0.3);
+        }
+        
+        /* 内容区域 */
+        .letter-content {
+            padding: 0 20px;
+        }
+        
+        .letter-content p {
+            margin-bottom: 25px;
+            font-size: 1.15rem;
+            text-align: justify;
+            position: relative;
+            padding-left: 10px;
+        }
+        
+        /* 移除首字放大效果，按用户要求 */
+        
+        .highlighted {
+            background-color: rgba(255, 230, 240, 0.6);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        /* 装饰性分隔符 */
+        .separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .separator-line {
+            height: 1px;
+            background-color: #e0c0c9;
+            flex-grow: 1;
+        }
+        
+        .separator-heart {
+            width: 12px;
+            height: 12px;
+            background-color: #ffb6c1;
+            transform: rotate(45deg);
+            margin: 0 20px;
+            position: relative;
+        }
+        
+        .separator-heart::before,
+        .separator-heart::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background-color: #ffb6c1;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .separator-heart::before {
+            top: -6px;
+            left: 0;
+        }
+        
+        .separator-heart::after {
+            top: 0;
+            left: -6px;
+        }
+        
+        /* 装饰性花朵 */
+        .flower-decoration {
+            position: absolute;
+            opacity: 0.6;
+        }
+        
+        .flower-1 {
+            width: 40px;
+            height: 40px;
+            top: 20px;
+            left: 30px;
+            transform: rotate(20deg);
+        }
+        
+        .flower-2 {
+            width: 30px;
+            height: 30px;
+            bottom: 30px;
+            right: 40px;
+            transform: rotate(-15deg);
+        }
+        
+        .flower-petal {
+            width: 20px;
+            height: 20px;
+            background-color: #ffcfe0;
+            border-radius: 50%;
+            position: absolute;
+        }
+        
+        .flower-petal:nth-child(1) { top: 0; left: 10px; }
+        .flower-petal:nth-child(2) { top: 10px; left: 0; }
+        .flower-petal:nth-child(3) { top: 10px; right: 0; }
+        .flower-petal:nth-child(4) { bottom: 0; left: 10px; }
+        .flower-petal:nth-child(5) { 
+            width: 12px; 
+            height: 12px; 
+            top: 14px; 
+            left: 14px; 
+            background-color: #ff9ebb; 
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            .letter-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .letter-content {
+                padding: 0 10px;
+            }
+            
+            .letter-content p {
+                font-size: 1.05rem;
+            }
+            
+            .border-left, .border-right {
+                width: 15px;
+            }
+            
+            .flower-1, .flower-2 {
+                display: none;
+            }
+        }
+        
+        /* 微妙的动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .letter-content p {
+            animation: fadeIn 1s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .letter-content p:nth-child(1) { animation-delay: 0.2s; }
+        .letter-content p:nth-child(2) { animation-delay: 0.4s; }
+        .letter-content p:nth-child(3) { animation-delay: 0.6s; }
+        .letter-content p:nth-child(4) { animation-delay: 0.8s; }
+        .letter-content p:nth-child(5) { animation-delay: 1s; }
+        .letter-content p:nth-child(6) { animation-delay: 1.2s; }
+        .letter-content p:nth-child(7) { animation-delay: 1.4s; }
+        .letter-content p:nth-child(8) { animation-delay: 1.6s; }
+        
+        /* 隐藏的彩蛋 - 鼠标悬停效果 */
+        .secret-message {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.85rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .secret-message:hover {
+            color: #d46a8c;
+        }
+        
+        .secret-message::after {
+            content: "愿你的每一天都平静而美好";
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background-color: rgba(212, 106, 140, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .secret-message:hover::after {
+            opacity: 1;
+        }
+        
+        /* 特殊高亮效果 */
+        .special-text {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .special-text::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 182, 193, 0.3);
+            bottom: 0;
+            left: 0;
+            z-index: -1;
+            border-radius: 3px;
+        }
+        
+        /* 结尾的颜文字样式 */
+        .emoji-ending {
+            display: inline-block;
+            font-size: 1.3rem;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="border-decoration">
+            <div class="border-left"></div>
+            <div class="border-right"></div>
+        </div>
+        
+        <div class="header-decoration"></div>
+        
+        <div class="letter-header">
+            <h1>致特别的你</h1>
+            <div class="subtitle">一份真诚的心意</div>
+        </div>
+        
+        <div class="letter-content">
+            <p>本想手写，但居于宿舍，多有不便，故用此法。</p>
+            
+            <p>起初我是打算13号那天当面跟你说点东西，但最终选用这种方式跟你聊，一方面是因为有些东西我确实不敢当面跟你说，另一方面是因为有些感受，用文字或许能表达的更清晰。此外，我也想让你有一个安静轻松的环境来阅读它，不会有这么大的压力。</p>
+            
+            <p>起初加你好友，是源于一起坐车回去，而之后一直找你聊天，确实是因为我那段时间没什么人可以聊天，先前能陪我在手机上聊天的人，都似乎有些忙碌。然而后来，我越来越会把生活中的一切分享给你，你的存在，就像一种安静而坚定的陪伴，让我总是感到愉悦。</p>
+            
+            <p>我欣赏的，绝不只是表面的任何，我更珍视的，是你的性格或者说是品质。我知道我的各种邀请，例如元旦出去之类，总会给你不少压力，然而，我感觉你总会顾及我的心理，以至于不会立马给我答复，或是寻找恰当的理由对我进行拒绝。这正是我所喜爱你的其中一点。我也知晓你需要安静轻松的环境，也有自己的生活，所以我并不要求你总要及时的回复我消息之类。我知道先前的许多邀请之类，确实给你了许多压力，今后我也会注意。</p>
+            
+            <div class="separator">
+                <div class="separator-line"></div>
+                <div class="separator-heart"></div>
+                <div class="separator-line"></div>
+            </div>
+            
+            <p>我想诚实的告诉你，你在我心中，占据着一个非常特别且重要的位置，我对你的感情，早已超越了友谊。这是我近期发现且经过思考的结果，而非仅是头脑一热的抒发感情。</p>
+            
+            <p>我写下这些，唯一也是最重要的目的，是希望你了解我的心意。你不需要有任何回复的压力，也完全不必担心这会改变我们现有的相处方式。在这件事上，我尊重你所有的感受、思考和可能需要的时间。无论你的答案是什么，它都不会改变我对你的珍视与尊重。请不要为此事感到任何负担。</p>
+            
+            <p>愿你不会因为这些话感到困扰，能有美好的一天。<span class="emoji-ending">❛˓◞˂̵✧</span></p>
+        </div>
+        
+        <!-- 装饰性花朵 -->
+        <div class="flower-decoration flower-1">
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+        </div>
+        
+        <div class="flower-decoration flower-2">
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+            <div class="flower-petal"></div>
+        </div>
+        
+        <div class="secret-message">❤️</div>
+    </div>
+    
+    <script>
+        // 简单的交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 鼠标悬停时的高亮效果
+            const paragraphs = document.querySelectorAll('.letter-content p');
+            paragraphs.forEach(p => {
+                p.addEventListener('mouseenter', function() {
+                    this.style.transition = 'all 0.3s ease';
+                    this.style.backgroundColor = 'rgba(255, 240, 245, 0.5)';
+                    this.style.padding = '8px 12px';
+                    this.style.borderRadius = '8px';
+                });
+                
+                p.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                    this.style.padding = '0 0 0 10px';
+                });
+            });
+            
+            // 点击页面任意处显示温馨提示
+            let clickCount = 0;
+            document.body.addEventListener('click', function(e) {
+                if (e.target.classList.contains('secret-message')) return;
+                
+                clickCount++;
+                if (clickCount === 3) {
+                    const message = document.createElement('div');
+                    message.textContent = '愿这份心意能温柔地抵达你的心间';
+                    message.style.position = 'fixed';
+                    message.style.top = '20px';
+                    message.style.left = '50%';
+                    message.style.transform = 'translateX(-50%)';
+                    message.style.backgroundColor = 'rgba(212, 106, 140, 0.9)';
+                    message.style.color = 'white';
+                    message.style.padding = '12px 20px';
+                    message.style.borderRadius = '8px';
+                    message.style.zIndex = '1000';
+                    message.style.fontSize = '0.9rem';
+                    message.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                    message.style.animation = 'fadeIn 0.5s ease-out';
+                    
+                    document.body.appendChild(message);
+                    
+                    setTimeout(() => {
+                        message.style.opacity = '0';
+                        message.style.transition = 'opacity 0.5s ease';
+                        setTimeout(() => document.body.removeChild(message), 500);
+                    }, 2000);
+                    
+                    clickCount = 0;
+                }
+            });
+            
+            // 为高亮文本添加额外的悬停效果
+            const highlightedTexts = document.querySelectorAll('.highlighted');
+            highlightedTexts.forEach(text => {
+                text.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                text.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+            
+            // 为结尾的颜文字添加动画效果
+            const emojiEnding = document.querySelector('.emoji-ending');
+            if (emojiEnding) {
+                emojiEnding.addEventListener('mouseenter', function() {
+                    this.style.transform = 'rotate(10deg) scale(1.2)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                emojiEnding.addEventListener('mouseleave', function() {
+                    this.style.transform = 'rotate(0deg) scale(1)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
